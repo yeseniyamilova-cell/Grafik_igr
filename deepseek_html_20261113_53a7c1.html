@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Квиз, плиз! — График игр</title>
+<style>
+:root{--bg:#130723;--elev:#1c0d35;--elev2:#251344;--surface:rgba(255,255,255,.035);--surface-hover:rgba(255,255,255,.07);--border:rgba(255,112,202,.18);--border-hover:rgba(255,112,202,.55);--text:#f6e9ff;--text-dim:#c0a8e0;--muted:#9c87bd;--accent:#ff5cb1;--accent-2:#b060ff;--accent-soft:rgba(255,92,177,.14);--radius:18px;--pill:999px;--max:1200px;--font-d:'Unbounded','Segoe UI',system-ui,sans-serif;--font-b:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',Arial,sans-serif;--t:160ms ease}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:var(--font-b);color:var(--text);line-height:1.55;background:radial-gradient(ellipse 80% 50% at 15% 0%,rgba(255,92,177,.18),transparent 60%),radial-gradient(ellipse 70% 45% at 85% 5%,rgba(176,96,255,.18),transparent 60%),radial-gradient(ellipse 90% 60% at 50% 100%,rgba(255,61,143,.1),transparent 60%),var(--bg);background-attachment:fixed}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+.shell{display:flex;flex-direction:column;min-height:100vh}
+header.site{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px clamp(16px,4vw,40px);background:rgba(19,7,35,.78);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.brand{display:inline-flex;align-items:center;gap:12px}
+.brand-mark{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));font-weight:800;font-size:1.15rem}
+.brand-name{font-family:var(--font-d);font-weight:700;font-size:1rem}
+.brand-sub{display:block;font-size:.68rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.header-nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.nav-link{padding:8px 14px;border-radius:var(--pill);font-size:.9rem;color:var(--text-dim);transition:background var(--t),color var(--t)}
+.nav-link:hover{color:var(--text);background:var(--surface)}
+.nav-link.is-active{color:var(--text);background:var(--accent-soft)}
+.nav-link.cta{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff}
+main.view{flex:1;width:100%;max-width:var(--max);margin:0 auto;padding:clamp(20px,4vw,48px) clamp(16px,4vw,40px)}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+footer.site{padding:24px;text-align:center;font-size:.82rem;color:var(--muted);border-top:1px solid var(--border)}
+.hero{padding:clamp(22px,4vw,36px);margin-bottom:24px;border-radius:calc(var(--radius) + 6px);border:1px solid var(--border);background:linear-gradient(135deg,rgba(255,92,177,.1),rgba(176,96,255,.1)),var(--elev)}
+.hero h1{font-family:var(--font-d);font-weight:800;font-size:clamp(1.6rem,4vw,2.3rem);letter-spacing:-.02em;line-height:1.15;margin:0 0 12px;background:linear-gradient(120deg,#fff 30%,#ffb8e0 70%,#d6b4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:0;color:var(--text-dim);max-width:56ch}
+.toolbar{display:flex;flex-direction:column;gap:14px;margin-bottom:24px;padding:20px;border:1px solid var(--border);border-radius:var(--radius);background:var(--elev)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.block{flex:1 1 260px;min-width:0}
+.flabel{font-size:.72rem;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.search{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--pill);border:1px solid var(--border);background:var(--surface);transition:border-color var(--t),background var(--t)}
+.search:focus-within{border-color:var(--border-hover);background:var(--surface-hover)}
+.search input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font-size:.95rem}
+.search-clear{padding:2px 8px;border-radius:6px;color:var(--muted);font-size:1.1rem;line-height:1}
+.search-clear:hover{color:var(--text);background:var(--surface-hover)}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:var(--pill);border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:.88rem;font-weight:500;transition:all var(--t)}
+.chip:hover{color:var(--text);border-color:var(--border-hover);background:var(--surface-hover)}
+.chip[aria-pressed="true"]{color:#1a0526;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent}
+.chip-check{opacity:0;width:0;overflow:hidden;transition:all var(--t);font-weight:800}
+.chip[aria-pressed="true"] .chip-check{opacity:1;width:14px}
+.chip-count{padding:1px 7px;border-radius:var(--pill);background:rgba(0,0,0,.18);font-size:.72rem;font-weight:700}
+.chip[aria-pressed="false"] .chip-count{background:rgba(255,255,255,.08);color:var(--muted)}
+.diff-chip .dot{width:10px;height:10px;border-radius:50%;background:var(--dc,#ff5cb1)}
+.score{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--surface)}
+.score small{color:var(--muted);font-size:.78rem}
+.score input{width:100%;accent-color:var(--accent)}
+.score output{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);min-width:3ch;text-align:right}
+.theme-chips,.year-chips{display:flex;flex-wrap:wrap;gap:6px}
+.theme-chip,.year-chip{padding:5px 12px;border-radius:var(--pill);border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:.78rem;transition:all var(--t)}
+.year-chip{font-size:.84rem;font-weight:600}
+.theme-chip:hover,.year-chip:hover{color:var(--text);border-color:var(--border-hover);background:var(--surface-hover)}
+.theme-chip[aria-pressed="true"],.year-chip[aria-pressed="true"]{color:#1a0526;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent}
+.reset{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:var(--pill);border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:.86rem;transition:all var(--t)}
+.reset:hover{color:var(--accent);border-color:var(--border-hover);background:var(--surface-hover)}
+.reset.on{color:#1a0526;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent}
+
+/* ===== Компактный календарь ===== */
+.period-wrap{position:relative;display:inline-block;width:100%;max-width:520px}
+.period-trigger{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--pill);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.92rem;transition:all var(--t);width:100%}
+.period-trigger:hover,.period-trigger[aria-expanded="true"]{border-color:var(--border-hover);background:var(--surface-hover)}
+.period-trigger .icon{color:var(--accent)}
+.period-trigger .label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.period-trigger .count{padding:1px 7px;border-radius:var(--pill);background:rgba(255,255,255,.08);color:var(--muted);font-size:.72rem;font-weight:700}
+.period-trigger.has-selection .count{background:var(--accent-soft);color:var(--accent)}
+.period-popover{position:absolute;z-index:40;top:calc(100% + 8px);left:0;width:min(400px,calc(100vw - 24px));padding:10px;border-radius:var(--radius);border:1px solid var(--border-hover);background:var(--elev2);box-shadow:0 24px 48px -20px rgba(0,0,0,.7);display:none}
+.period-popover.is-open{display:block}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px}
+.cal-nav{width:26px;height:26px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--border);background:var(--surface);font-size:.85rem;transition:all var(--t)}
+.cal-nav:hover:not(:disabled){border-color:var(--border-hover);background:var(--surface-hover)}
+.cal-nav:disabled{opacity:.35;cursor:not-allowed}
+.cal-title-btn{border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--font-d);font-weight:700;font-size:.8rem;padding:4px 10px;border-radius:var(--pill);transition:all var(--t)}
+.cal-title-btn:hover{border-color:var(--border-hover);background:var(--surface-hover)}
+.cal-picker{display:none;margin-top:6px}
+.cal-picker.is-open{display:block}
+.cal-picker-grid{display:grid;gap:4px}
+.cal-picker-grid.months{grid-template-columns:repeat(3,1fr)}
+.cal-picker-grid.years{grid-template-columns:repeat(4,1fr)}
+.cal-picker-cell{padding:6px 4px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:.76rem;transition:all var(--t)}
+.cal-picker-cell:hover{color:var(--text);border-color:var(--border-hover);background:var(--surface-hover)}
+.cal-picker-cell.is-current{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#1a0526;border-color:transparent;font-weight:700}
+.cal-wd-row{display:grid;grid-template-columns:26px repeat(7,1fr);gap:2px;padding-bottom:4px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.cal-wd{font-size:.6rem;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.04em}
+.cal-week{display:grid;grid-template-columns:26px repeat(7,1fr);gap:0;border-radius:6px;transition:background var(--t)}
+.cal-week.has-games{cursor:pointer}
+.cal-week.has-games:hover{background:var(--surface-hover)}
+.cal-week.sel{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#1a0526}
+.cal-week.empty{opacity:.35;cursor:default}
+.cal-wnum{font-size:.58rem;color:var(--muted);display:grid;place-items:center;border-right:1px solid var(--border);padding:4px 0}
+.cal-week.sel .cal-wnum{color:#1a0526;border-right-color:rgba(0,0,0,.2)}
+.cal-day{position:relative;min-height:26px;padding:2px 1px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.7rem;font-variant-numeric:tabular-nums;border-radius:4px}
+.cal-day .cnt{font-size:.55rem;padding:0 3px;border-radius:var(--pill);background:var(--accent-soft);color:var(--accent);font-weight:700;line-height:1.1}
+.cal-week.sel .cal-day .cnt{background:rgba(0,0,0,.2);color:#1a0526}
+.cal-day.outside{opacity:.35}
+.cal-foot{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.cal-btn{flex:1;min-width:auto;padding:6px 10px;border-radius:var(--pill);border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:.78rem;transition:all var(--t)}
+.cal-btn:hover{color:var(--text);border-color:var(--border-hover);background:var(--surface-hover)}
+.cal-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#1a0526;border-color:transparent;font-weight:700}
+.cal-btn.on{background:var(--accent-soft);color:var(--accent);border-color:transparent;font-weight:600}
+
+.result{font-size:.88rem;color:var(--muted);margin-bottom:16px;display:flex;flex-wrap:wrap;gap:6px 20px;align-items:baseline}
+.result b{color:var(--text)}
+.result .avg,.result .warn,.result .sem{padding:3px 10px;border-radius:var(--pill);font-weight:600}
+.result .avg{background:var(--accent-soft);color:var(--accent)}
+.result .warn{background:rgba(251,191,36,.15);color:#fbbf24}
+.result .sem{background:rgba(96,165,250,.18);color:#93c5fd}
+.year-section{display:flex;flex-direction:column;gap:24px}
+.year-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;padding-bottom:10px;border-bottom:2px solid var(--border-hover);margin-bottom:8px}
+.year-head h2{font-family:var(--font-d);font-weight:800;font-size:clamp(1.4rem,3vw,2rem);margin:0;letter-spacing:-.02em;background:linear-gradient(120deg,#fff,#ffb8e0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.year-head .year-count{font-size:.82rem;color:var(--muted);margin-left:auto}
+.weeks{display:flex;flex-direction:column;gap:32px}
+.week-group{display:flex;flex-direction:column;gap:16px}
+.week-header{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.week-prefix{font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.week-range{font-family:var(--font-d);font-weight:800;font-size:clamp(1.1rem,2.4vw,1.5rem);letter-spacing:-.02em;line-height:1.15}
+.week-count{font-size:.8rem;color:var(--accent);font-weight:600;margin-left:auto}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:640px){.grid{grid-template-columns:repeat(2,1fr);gap:18px}}
+@media (min-width:980px){.grid{grid-template-columns:repeat(3,1fr);gap:20px}}
+.card{position:relative;display:flex;flex-direction:column;padding:20px;border-radius:var(--radius);border:1px solid var(--border);background:var(--elev);overflow:hidden;transition:transform var(--t),border-color var(--t),box-shadow var(--t),background var(--t)}
+.card::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--cc,#ff5cb1),transparent 85%)}
+.card:hover,.card:focus-visible{transform:translateY(-3px);border-color:var(--border-hover);background:var(--elev2);box-shadow:0 16px 40px -22px rgba(255,92,177,.55)}
+.card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--cc,#ff5cb1);font-weight:600;margin-bottom:10px;flex-wrap:wrap}
+.card-title{font-family:var(--font-d);font-weight:700;font-size:1.05rem;line-height:1.3;margin:0 0 8px}
+.card-desc{margin:0 0 10px;color:var(--text-dim);font-size:.86rem;line-height:1.5}
+.card-desc p{margin:0 0 .4em}
+.card-desc p:last-child{margin:0}
+.card-desc ul{margin:0;padding-left:1.1em}
+.card-desc li{margin-bottom:.2em}
+.card-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:.78rem;color:var(--muted);margin-bottom:12px}
+.card-meta span{white-space:nowrap}
+.card-date{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:var(--pill);background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-size:.78rem}
+.card-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--pill);font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.card-badge.semantic{background:rgba(96,165,250,.18);color:#93c5fd}
+.card-badge.locked{background:rgba(251,191,36,.18);color:#fbbf24}
+.card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:10px;margin-top:auto;border-top:1px solid var(--border)}
+.stars{display:inline-flex;gap:1px;font-size:.95rem;line-height:1}
+.star-on{color:var(--dc,var(--accent))}
+.star-off{color:var(--muted);opacity:.5}
+.difficulty{display:inline-flex;align-items:center;gap:8px;font-size:.8rem}
+.difficulty b{color:var(--dc,var(--text-dim))}
+.card--locked{opacity:.45;filter:saturate(.5)}
+.card--locked:hover{opacity:.7;filter:saturate(.7)}
+.card--locked .card-lock-overlay{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:2}
+.card--locked .lock-icon{font-size:3rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5))}
+.card--locked .lock-text{position:absolute;top:70%;left:50%;transform:translateX(-50%);font-size:.72rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;background:rgba(19,7,35,.85);padding:3px 10px;border-radius:var(--pill)}
+.guide{max-width:900px;margin:0 auto}
+.back{display:inline-flex;align-items:center;gap:8px;margin-bottom:20px;padding:8px 14px;border-radius:var(--pill);border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:.88rem;transition:all var(--t)}
+.back:hover{color:var(--text);border-color:var(--border-hover);background:var(--surface-hover)}
+.guide-header{padding:clamp(20px,4vw,32px);margin-bottom:24px;border-radius:var(--radius);border:1px solid var(--border);background:linear-gradient(135deg,rgba(255,92,177,.1),rgba(176,96,255,.08)),var(--elev)}
+.guide-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;margin-bottom:14px;border-radius:var(--pill);background:var(--accent-soft);color:var(--accent);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.guide-badge.universal{background:rgba(176,96,255,.16);color:#d6b4ff}
+.guide-badge.custom{background:rgba(251,191,36,.15);color:#fbbf24}
+.guide-title{font-family:var(--font-d);font-weight:800;font-size:clamp(1.4rem,4vw,2rem);letter-spacing:-.02em;line-height:1.15;margin:0 0 14px}
+.guide-meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;font-size:.86rem;color:var(--muted)}
+.guide-body{display:flex;flex-direction:column;gap:20px}
+.guide-section{padding:clamp(18px,3vw,26px);border-radius:var(--radius);border:1px solid var(--border);background:var(--elev)}
+.guide-section h2{font-family:var(--font-d);font-weight:700;font-size:1.05rem;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+.guide-section h2::before{content:"";width:4px;height:18px;border-radius:2px;background:linear-gradient(180deg,var(--accent),var(--accent-2))}
+.guide-section h3{font-family:var(--font-d);font-weight:700;font-size:.95rem;margin:16px 0 8px}
+.guide-section p{margin:0 0 10px;color:var(--text-dim)}
+.guide-section ul,.guide-section ol{color:var(--text-dim);padding-left:1.4em;margin:8px 0}
+.kv,.meta-grid{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0}
+.kv dt,.meta-grid dt{color:var(--muted);font-size:.86rem}
+.kv dd,.meta-grid dd{margin:0;font-size:.92rem;word-break:break-word}
+.kv dd a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.meta-grid dd .status{display:inline-block;padding:2px 10px;border-radius:var(--pill);font-size:.78rem;font-weight:600;background:var(--surface);border:1px solid var(--border)}
+.meta-grid dd .status.good{background:rgba(74,222,128,.14);color:#4ade80;border-color:rgba(74,222,128,.3)}
+.meta-grid dd .status.warn{background:rgba(251,191,36,.14);color:#fbbf24;border-color:rgba(251,191,36,.3)}
+.meta-grid dd .status.bad{background:rgba(248,113,113,.14);color:#f87171;border-color:rgba(248,113,113,.3)}
+.meta-grid dd .status.info{background:rgba(96,165,250,.14);color:#93c5fd;border-color:rgba(96,165,250,.3)}
+.guide-link{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--pill);background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;font-weight:600;font-size:.9rem}
+.guide-missing{padding:14px;border-radius:12px;border:1px dashed var(--border-hover);background:var(--surface);color:var(--text-dim);font-size:.92rem;font-style:italic}
+.placeholder{padding:20px;border-radius:12px;border:1px dashed var(--border-hover);background:var(--surface);color:var(--text-dim);font-size:.92rem}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty h2{color:var(--text);font-family:var(--font-d);margin-bottom:8px}
+.empty .cta{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:10px 18px;border-radius:var(--pill);background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;font-weight:600}
+.modal-backdrop{position:fixed;inset:0;z-index:100;background:rgba(9,3,17,.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.is-open{display:flex}
+.modal{max-width:720px;width:100%;max-height:88vh;overflow:auto;padding:28px;background:var(--elev2);border:1px solid var(--border-hover);border-radius:var(--radius);box-shadow:0 32px 80px -20px rgba(0,0,0,.8);position:relative}
+.modal-close{position:sticky;top:0;float:right;margin:-6px -6px 0 0;width:32px;height:32px;border-radius:50%;background:var(--surface);color:var(--text);font-size:1.1rem}
+.modal h2{font-family:var(--font-d);font-size:1.3rem;margin:0 0 12px}
+.modal h3{font-family:var(--font-d);font-size:1rem;margin:20px 0 8px;color:var(--accent)}
+.modal p,.modal li{color:var(--text-dim);font-size:.92rem;line-height:1.6}
+.modal ul,.modal ol{padding-left:1.4em;margin:8px 0}
+.modal code{background:var(--surface);padding:1px 6px;border-radius:6px;font-size:.86em;color:var(--accent)}
+.desc-structured{color:var(--text-dim);font-size:.86rem;line-height:1.55;margin:0 0 10px}
+.desc-structured ul{margin:0;padding-left:1.1em}
+.desc-structured li{margin-bottom:.25em}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="site">
+    <a href="#/" class="brand">
+      <span class="brand-mark">★</span>
+      <span>
+        <span class="brand-name">Квиз, плиз!</span>
+        <span class="brand-sub">график игр</span>
+      </span>
+    </a>
+    <nav class="header-nav">
+      <a href="#/" class="nav-link" id="nav-catalog">Каталог</a>
+      <a href="#/program" class="nav-link" id="nav-program">Гайд по программе</a>
+      <button class="nav-link cta" id="open-help">📖 Инструкция</button>
+    </nav>
+  </header>
+  <main id="view" class="view" tabindex="-1"></main>
+  <footer class="site"><p>Внутренний проект · график игр и гайды Квиз, плиз!</p></footer>
+</div>
+<div class="modal-backdrop" id="help-modal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" id="close-help" aria-label="Закрыть">×</button>
+    <h2>Как пользоваться графиком</h2>
+    <h3>Поиск</h3>
+    <p>Минимум 2 символа. Debounce 280 мс. Ищет по словам с учётом словоформ, синонимов и небольших опечаток. Если точных совпадений мало — показывает близкие по смыслу с пометкой «похоже по смыслу». Пустой экран не показывается: либо результаты, либо весь каталог с предупреждением.</p>
+    <h3>Годы</h3>
+    <p>Каталог сгруппирован по годам от старых к новым. Можно выбрать конкретный год или «все годы».</p>
+    <h3>Период</h3>
+    <p>Клик по году → список годов. Клик по месяцу → сетка месяцев. Клик по любому дню недели — выбор недели целиком. «ОК» подтверждает выбор.</p>
+    <h3>Будущие игры</h3>
+    <p>Игры, которые ещё не вышли, подсвечены бледно с замком и надписью «кто возьмёт — тот лох».</p>
+  </div>
+</div>
+<script>
+/* ============ ДАННЫЕ ИЗ «ГРАФИК ИГР» (2026) ============ */
+const RAW_DATA = `
+2025-12-29;;Квиз, плиз! #1228;;классика;;;;Синонимы;;36.69;;69
+2025-12-29;;Квиз, плиз! #1228 Light;;классика;;;;Синонимы;;37.59;;69
+2025-12-29;;Квиз, плиз! #1229;;классика;;;;История в изображениях;;35.4;;69
+2025-12-29;;Квиз, плиз! #1230;;классика;;;;...БЕР...;;38.17;;69
+2025-12-30;;[назад в детство] #1;;классика;;;;Семейная игра по эпохам. Спрашиваем обо всем, что ассоциируется с детством разных поколений — сказки, традиции, фильмы.;;;;38.53;;76
+2025-12-30;;[караоке] под ёлкой #1;;ким;;https://docs.google.com/document/d/1r9TFVSY4SsEF-yZMfchgxiueay9PbCRxsq_UoY4jPyA/edit?usp=sharing;;Базовое караоке с отдельными треками, ассоциирующимися с Новым годом.;;;;41.52;;77.5
+2026-01-02;;[Бинго, плиз!] #15;;Бинго, плиз!;;https://docs.google.com/document/d/1_N-3UqdFSijqsnSA7hLHnHOt97dhdju0IpzVJJ9CXbo/edit?usp=sharing;;;;;
+2026-01-02;;[кино и музыка] #202;;ким;;;;Новогодний раунд.;;;;40.28;;78
+2026-01-03;;[треш и угар] 18+ #1;;классика;;https://docs.google.com/document/d/11nnzWm7RTulhLTNerEnCsS4oaTKO6YHHUfRO1IgKIx0/edit?usp=sharing;;Формат, который собирает в себе лучшее из 18+ и мемов и приколов.;;;;51.19;;65.5;;3
+2026-01-03;;[советские комедии] #1;;ким;;https://docs.google.com/document/d/1G2Oc5VOeOSUmz-gCrwe6ckaKmUN10WYxmuLHGMxT-Lc/edit?usp=sharing;;Формат игры с вопросами про комедийное кино, мультики, сериалы.;;;;47.11;;64
+2026-01-03;;[девичник] новогодний #1;;Тематические;;https://docs.google.com/document/d/1q7l_M_mMlyUHe65yPqxcsuITB17ZrvcEMw49n4rVQ34/edit?usp=sharing;;Девичник с новогодним уклоном.;;;;47.47;;63.5
+2026-01-04;;[музыкальная битва] #1;;ким;;https://docs.google.com/document/d/1Qzew6AbBQROFSNW1z31tJnly7CGVpQZ1aJZqJNJt_ws/edit?usp=sharing;;Формат игры, противостояние между жанрами, эпохами, исполнителями.;;;;59.27;;124;;3
+2026-01-04;;[назад в СССР] #16;;классика;;https://docs.google.com/document/d/19EGWLXZDs0rEl0AiIjKrbzf4zqNmuLq464O02pKfejw/edit?usp=sharing;;;;;;38.44;;64
+2026-01-04;;[новогоднее ТВ] #1;;ким;;https://docs.google.com/document/d/1IPFrNGjdkuebp3B3wiqcbgSFD-6SDYl_Xu7jepF6fI0/edit?usp=sharing;;Соберем в одной игре новогодние передачи и кинофраншизы.;;;;42.47;;89
+2026-01-05;;Квиз, плиз! #1231;;классика;;;;Антонимы;;38.02;;69
+2026-01-05;;Квиз, плиз! #1231 Light;;классика;;;;Антонимы;;37.69;;69
+2026-01-05;;Квиз, плиз! #1232;;классика;;;;...МАТ...;;35.92;;69
+2026-01-05;;Квиз, плиз! [изи] #21;;классика;;https://docs.google.com/document/d/1hXvmmqvB1x_lESqogIp9Hg6MTTx67-2Oc4Fsw_-UKkE/edit?usp=sharing;;Игра с тематическим раундом про счастье и Новый год.;;;;39.1;;66.5;;1
+2026-01-05;;[про кино] Гарри Поттер #6;;Тематические КиМ;;https://docs.google.com/document/d/1sdxJr1NaHRjcyLluxTvH8nGn0sR3yqBkpeUQ4E4i4bg/edit?usp=sharing;;Легкая игра, собираем вопросы по всему Гарри Поттеру.;;;;39.38;;62;;1
+2026-01-05;;[music party] рашн эдишн #9;;ким;;https://docs.google.com/document/d/1mu-_Q8ZP0W7-uNYDI3Ibe8xnuYc8FR3AHkbhOzzEnUA/edit?usp=sharing;;;;;;57.07;;95
+2026-01-05;;[меломания] #6;;ким;;https://docs.google.com/document/d/1K9RavBF8fyCLRJEqMT96DgPMPZoVkfuDGSKgFpN9uQk/edit?usp=sharing;;;;;;56.73;;83
+2026-01-06;;[кино и музыка] #202 Light;;ким;;;;Новогодний раунд.;;;;28.23;;78;;1
+2026-01-06;;[кино и музыка] 90-00-е #1;;Тематические КиМ;;https://docs.google.com/document/d/1QgAphR7sdPKziPeQ-PtIxq1TACV3WTKWkrG77JiqPSw/edit?usp=sharing;;;;;;46.72;;76
+2026-01-06;;[300к1] 18+ #6;;классика;;https://docs.google.com/document/d/15biFCB0q49iVLt9b18KO5IGTk2vzruyqNK80EFn-Iac/edit?usp=sharing;;;;;;48.32;;106;;4
+2026-01-06;;[топовые мультики] #2;;Тематические КиМ;;https://docs.google.com/document/d/1e8814zMWyQscDN-3H95SXC4hDMNFDVJgq28vpQw1F4A/edit?usp=sharing;;;;;;43.97;;66
+2026-01-07;;[Властелин колец] #3;;классика;;https://docs.google.com/document/d/1mVZtUDZd1Kv4QeEUlKNIyV58_kqDJdxDBewjzckBoE8/edit?usp=sharing;;Игра по фильмам и книгам.;;;;46.89;;69
+2026-01-12;;Квиз, плиз! #1233;;классика;;;;Красная огненная лошадь;;41.01;;69
+2026-01-12;;Квиз, плиз! #1233 Light;;классика;;;;Красная огненная лошадь;;32.72;;69
+2026-01-12;;Квиз, плиз! #1234;;классика;;;;Последние три буквы прошлого ответа повторяются в начале предыдущего;;38.27;;69
+2026-01-12;;Квиз, плиз! #1235;;классика;;;;Анаграммы;;38.46;;69
+2026-01-14;;[music party] 100 хитов #1;;Тематические КиМ;;https://docs.google.com/document/d/1oHbEG5UgTfTxFcpnnG0FR1ZYUPsKekESRE5HZ80_Lls/edit?usp=sharing;;;;;;68.31;;112
+2026-01-15;;Квиз, плиз! [БОЛЬШАЯ ИГРА] #9;;классика;;https://docs.google.com/document/d/1LtwJv02CN1CPwtkrA38Y0FwaHOQJOxNtQdPOJsDHoP4/edit?usp=sharing;;;;;;58.67;;111;;3
+2026-01-16;;[кино и музыка] #203;;ким;;;;;;33.83;;78
+2026-01-19;;Квиз, плиз! #1236;;классика;;;;Италия;;40.46;;69
+2026-01-19;;Квиз, плиз! #1236 Light;;классика;;;;Италия;;37.69;;69
+2026-01-19;;Квиз, плиз! #1237;;классика;;;;Количество слов в ответе увеличивается от 1 до 6;;47.5;;69
+2026-01-19;;Квиз, плиз! [изи] #22;;классика;;https://docs.google.com/document/d/1UguxVjdeNvk7rAh4Bh0cQ7ai2ufkhV8_wYo0Quo_xMk/edit?usp=sharing;;;;;;45.63;;66.5;;1
+2026-01-20;;[кино и музыка] #203 Light;;ким;;;;;;37.9;;78;;1
+2026-01-21;;[караоке] русские припевы #1;;Тематические КиМ;;https://docs.google.com/document/d/1700cnSs9RkD6DoP6TCgrEP1LlPdV1ziYNEbI2jGOPhY/edit?usp=sharing;;;;;;46.3;;82.5
+2026-01-21;;[путешествия] #11;;классика;;https://docs.google.com/document/d/1VBm8HfO9u9-01NnRzB3BoFE0vHsMXyGhOADxTQqlHhM/edit?usp=sharing;;;;;;40.75;;67.5
+2026-01-22;;Квиз, плиз! 100 вопросов обо всем #1;;классика;;https://docs.google.com/document/d/1wCBnR8kslizI_BaH1c3E0xfciUNiC4a5MBgxEX3kttM/edit?usp=sharing;;;;;;62.05;;80.5
+2026-01-23;;[кино и музыка] изи #17;;ким;;https://docs.google.com/document/d/1Uur7RNqKijhsgKoNG9pNCr_Z90KXgNFX58O7z_eeJ0s/edit?usp=sharing;;;;;;47.05;;74.5;;1
+2026-01-26;;Квиз, плиз! #1238;;классика;;;;Женские имена;;42.2;;69
+2026-01-26;;Квиз, плиз! #1238 Light;;классика;;;;Женские имена;;45.1;;69
+2026-01-26;;Квиз, плиз! #1239;;классика;;;;...ПАР...;;39.69;;69
+2026-01-26;;Квиз, плиз! #1240;;классика;;;;Paint it Black;;40.04;;69
+2026-01-28;;[меломания] угадываем хиты 90-00 #1;;Тематические КиМ;;https://docs.google.com/document/d/1vIBUSrJNyztt_5adEtVXwaN9TfjW9zi919GqePPP6Gk/edit?usp=sharing;;;;;;64.69;;83
+2026-01-28;;[шазам] #8;;ким;;https://docs.google.com/document/d/1O1CSD1GsUtph_S9eJu06M7tKoyVOweSRhB2l8Zzy9BU/edit?usp=sharing;;В преддверии десятилетия Квиз, плиз! ностальгируем и выпускаем наши старые форматы;;;;35.86;;69
+2026-01-29;;[железные яйца] #7;;классика;;https://docs.google.com/document/d/1PGL0Wk3ckyMawasGzOJZbVgKd0wCDUM3ifwHdLbwsFk/edit?usp=sharing;;;;;;58.59;;122;;4
+2026-01-29;;Квиз, плиз! [про еду] #1;;классика;;https://docs.google.com/document/d/1vQq7ZvzinBRtWJBw1-rxIRaABzsIMNlgiL6MTtXMN-I/edit?usp=sharing;;;;;;56.71;;92
+2026-01-29;;[кино и музыка] 2016-й #1;;Тематические КиМ;;https://docs.google.com/document/d/1ls8q7xntMxEav8bZcpTL9zPDEefdYYqqNTbaxwSjiLQ/edit?tab=t.0;;;;;;41.57;;78
+2026-01-30;;[кино и музыка] #204;;ким;;;;;;44.33;;78
+2026-01-30;;[Бинго, плиз!] #17;;Бинго, плиз!;;https://docs.google.com/document/d/1W3XcmM2zRLChaYEAyJgSteu_0h-AynM9Vdqqe50mJ1Q/edit?usp=sharing;;;;;
+2026-02-02;;Квиз, плиз! #1241;;классика;;;;Спортивные термины;;42.09;;69
+2026-02-02;;Квиз, плиз! #1241 Light;;классика;;;;Спортивные термины;;40.89;;69
+2026-02-02;;Квиз, плиз! #1242;;классика;;;;Зелёный;;40.54;;69
+2026-02-02;;Квиз, плиз! [изи] #23;;классика;;https://docs.google.com/document/d/1Esm-Y9nJXDmsXkKBG_NsUCm6vgOpefTkQY_6HsfhBBo/edit?usp=sharing;;;;;;45.42;;66.5;;1
+2026-02-04;;[music party] про любовь, про тебя #2;;Тематические КиМ;;https://docs.google.com/document/d/10DQfAD-8swcYx6khEbGIq7rXc8sBLkqJ6UGCmZyYXbU/edit?usp=sharing;;;;;;55.86;;87.5
+2026-02-04;;[300к1] музыкальная #1;;Тематические КиМ;;https://docs.google.com/document/d/1ZdDhQiGzJ4U0mD2T9xdfX7Rfaophud5IfYcr2QChqgE/edit?usp=sharing;;;;;;51.97;;96;;4
+2026-02-05;;[про спорт] #5;;классика;;https://docs.google.com/document/d/1lPBAr-kXsPfy0GiBXv4OEmUzmbtxBTN9TuDKCCn36rk/edit?usp=sharing;;;;;;40.2;;60
+2026-02-05;;[Клиника] #2;;Тематические КиМ;;https://docs.google.com/document/d/1Hkuj6RdV54-QXebaVktKAuaWCU-xG-eWfXVFbXS3csQ/edit?usp=sharing;;;;;;49.97;;63.5
+2026-02-09;;Квиз, плиз! #1243;;классика;;;;Прилагательные, образованные от стран;;43.47;;69
+2026-02-09;;Квиз, плиз! #1243 Light;;классика;;;;Прилагательные, образованные от стран;;37.68;;69
+2026-02-09;;Квиз, плиз! #1244;;классика;;;;Два слова на одну букву;;40.04;;69
+2026-02-09;;Квиз, плиз! #1245;;классика;;;;Гласные только О;;38.12;;69
+2026-02-11;;[караоке] песни о любви #1;;Тематические КиМ;;https://docs.google.com/document/d/1cguUaC88STocyrzg5SX_uzj9KJ5PVxpDvCrFP40Vcbs/edit?usp=sharing;;;;;;49.37;;85
+2026-02-11;;Квиз, плиз! [юмор] #1;;классика;;https://docs.google.com/document/d/1VKvzeqha5IZSAA-QWwUmnDIRyeXt-DK622mdSSFhpag/edit?usp=sharing;;;;;;37.93;;83
+2026-02-12;;[телеигры] #13;;классика;;https://docs.google.com/document/d/1zAdXTAbZP3N7weJgaxckA0PjBMOq4HNm5Jt0At6rPqI/edit?usp=sharing;;;;;;36.28;;92.5
+2026-02-12;;[afterparty] #10;;Тематические;;https://docs.google.com/document/d/1ORYi0CShqHG55ZnaTBbRp6yA47C6kvh03VQgeqwPmGE/edit?usp=sharing;;;;;;33.34;;62;;1
+2026-02-13;;[Корпоративная битва] #22;;Корпоративная игра;;;;;;;;;
+2026-02-13;;[кино и музыка] #205;;ким;;;;;;32.42;;78
+2026-02-13;;[Бинго, плиз!] #18;;Бинго, плиз!;;;;;;;;;
+2026-02-16;;Квиз, плиз! #1246;;классика;;;;Слова из двух повторяющихся слогов;;40.27;;69
+2026-02-16;;Квиз, плиз! #1246 Light;;классика;;;;Слова из двух повторяющихся слогов;;40.52;;69
+2026-02-16;;Квиз, плиз! #1247;;классика;;;;Что по ящику?;;38.29;;69
+2026-02-16;;Квиз, плиз! [изи] #24;;классика;;https://docs.google.com/document/d/1nk2-eGqF18ksy3H2VmzsbH2IcfI8jF9YSW5r7BI5nXc/edit?usp=sharing;;;;;;47.6;;66.5;;1
+2026-02-17;;[меломания] только русское #2;;Тематические КиМ;;https://docs.google.com/document/d/1P8oL-Cc3_ujPjiMiuzs5Vyc5vMupR9n8pkCQsxQCIYo/edit?usp=sharing;;ex. [меломания] рашн эдишн;;;;56.56;;83
+2026-02-17;;[кино и музыка] 2010-е #2;;Тематические КиМ;;https://docs.google.com/document/d/1azzHNLKpD9C95KRJzC605UIcMdkQATfEbWFGq4hAQfU/edit?usp=sharing;;;;;;37.04;;78
+2026-02-18;;[мемы и приколы] 18+ #3;;классика;;https://docs.google.com/document/d/1IDNTQ1gTQ7OIJiIamRt4Hrpy0RDshKbUqt8p8Y8Xoq8/edit?usp=sharing;;;;;;40.09;;65.5;;3
+2026-02-18;;[топовые мультики] #3;;Тематические КиМ;;https://docs.google.com/document/d/1qmssdiBWrbZbEATzApWtJ7eJ_24r3HnUiWL4kQ9HiH0/edit?usp=sharing;;;;;;40.94;;66
+2026-02-20;;Квиз, плиз! [М+Ж микс] #2;;классика;;https://docs.google.com/document/d/1heAYpt1lUjBYg0iCrkkEVHSZGQAbCztPJOQhEAEKefw/edit?usp=sharing;;Микс пакетов [23 февраля] и [8 марта]. Рекомендуем ставить в расписание либо только микс, либо 2 отдельные игры.;;;;49.29;;68
+2026-02-20;;[кино и музыка] изи #18;;ким;;https://docs.google.com/document/d/1FRPfjo-y3Dw0waJ50VqY7VOzb2WiKg-YpbfJQWOEWA0/edit?usp=sharing;;;;;;47.47;;74.5;;1
+2026-02-23;;Квиз, плиз! #1248;;классика;;;;Несклоняемые слова, которые кончаются на И;;36.14;;69
+2026-02-23;;Квиз, плиз! #1248 Light;;классика;;;;Несклоняемые слова, которые кончаются на И;;34.88;;69
+2026-02-23;;Квиз, плиз! #1249;;классика;;;;Слова с парой одинаковых гласных;;37.72;;69
+2026-02-23;;Квиз, плиз! #1250;;классика;;;;Слова итальянского происхождения в алфавитном порядке;;36.6;;69
+2026-02-24;;[девичник] для милых дам #1;;Тематические;;https://docs.google.com/document/d/16SerKqUdcC1H7ot-mdiRB0MZia7hrW4cA-7xA5usmc0/edit?usp=sharing;;;;;;40.02;;61.5
+2026-02-24;;[music party] угадываем хиты #1;;Тематические КиМ;;https://docs.google.com/document/d/1TW4JULjrh5FdUOg2lW66NmyDWHRYTE50Xr69tYk9NO0/edit?usp=sharing;;;;;;60.34;;105
+2026-02-24;;Квиз, плиз [реалити шоу] #1;;классика;;https://docs.google.com/document/d/1eekN6aTX4UoKO14yKqL0tQSagft3d69GiNmWs7da4lg/edit?usp=sharing;;Про разные реалити шоу, которые выходили;;;;;;75
+2026-02-25;;Квиз, плиз! [сюрприз] #8;;классика;;https://docs.google.com/document/d/1dhcEk67XLgn5Ms4xQUsa-I6WHy-PCbzeqHtfm4fM3UY/edit?usp=sharing;;В преддверии десятилетия Квиз, плиз! ностальгируем и выпускаем наши старые форматы;;;;19.93;;63
+2026-02-26;;[кино и музыка] #206;;ким;;;;;;47.12;;78
+2026-02-26;;[Бинго, плиз!] #19;;Бинго, плиз!;;;;;;;;;
+2026-03-02;;Квиз, плиз! #1251;;классика;;;;Африка;;35.26;;69
+2026-03-02;;Квиз, плиз! #1251 Light;;классика;;;;Африка;;30.32;;69
+2026-03-02;;Квиз, плиз! #1252;;классика;;;;Евгений Леонов;;40.36;;69
+2026-03-02;;Квиз, плиз! [изи] #25;;классика;;https://docs.google.com/document/d/1zumMN6WCPhp88KRnNChx5CrxtXh9wd2d2ZyOHBP6-hA/edit?usp=sharing;;;;;;41.71;;66.5;;1
+2026-03-03;;[кино и музыка] #206 Light;;ким;;;;;;41.23;;78;;1
+2026-03-02;;[музыкальная битва] #2;;Тематические КиМ;;https://docs.google.com/document/d/1viwCe_LUE3815vkLP6btmRzUaKQx7HtQK3gED8qb3QY/edit?usp=sharing;;;;;;65.43;;114;;3
+2026-03-03;;[кино и музыка] СССР #11;;Тематические КиМ;;https://docs.google.com/document/d/1WIj4xJAHBglNOQk1Aa9fc500s5AOuRZE-vvHv1ZWoy4/edit?usp=sharing;;;;;;45.24;;78
+2026-03-03;;Квиз, плиз! [криминальный] #1;;классика;;https://docs.google.com/document/d/1zDkT0IL0oxAa95G5xmdG0-wXsOHzXyawu9mRNSUiP7Y/edit?usp=sharing;;;;;;44.95;;70.5
+2026-03-03;;Первая игра Квиз, плиз!;;классика;;https://docs.google.com/document/d/1d4sutOFQ7iBAB0IvV--Z18OTmLLWuv6FOb5eryXmP-8/edit?usp=sharing;;Возможность отметить десятилетие бренда, сыграв самую первую игру 2016 года в старом дизайне.;;;;;;
+2026-03-04;;[teens] #49;;Teens;;;;;;;;;
+2026-03-04;;ОТКРЫТИЕ ВЕСЕННЕГО СЕЗОНА противочитерный микс-пакет 1;;классика;;;;;;;;;
+2026-03-05;;ОТКРЫТИЕ ВЕСЕННЕГО СЕЗОНА противочитерный микс-пакет 2;;классика;;;;;;;;;
+2026-03-09;;Квиз, плиз! #1253;;классика;;;;Вопросы на эрудицию;;36.89;;69
+2026-03-09;;Квиз, плиз! #1253 Light;;классика;;;;Вопросы на эрудицию;;38.86;;69
+2026-03-09;;Квиз, плиз! #1254;;классика;;;;Города в названиях;;39.54;;69
+2026-03-09;;Квиз, плиз! #1255;;классика;;;;...РОК...;;33.22;;69
+2026-03-10;;[караоке] хиты #3;;Тематические КиМ;;https://docs.google.com/document/d/1DYh-BUpO-je1Udt0F7IDyGb4quCWjoqm6yuUsCN56Yw/edit?usp=sharing;;;;;;47.75;;85
+2026-03-10;;Квиз, плиз! [включаем логику] #2;;классика;;https://docs.google.com/document/d/1_CA1EOP1byNpBE-Jtt7ydAT8lTdRYX0JkpMK2-fZA3A/edit?usp=sharing;;;;;;46.48;;64
+2026-03-10;;[литература] #7;;классика;;https://docs.google.com/document/d/1iwINWX6IXE-qD8fFMAnnnBsufn7JywHmDWoCp1n85qs/edit?usp=sharing;;;;;;31.32;;60;;3
+2026-03-11;;Квиз, плиз! [брейнрот] #1;;Тематические;;https://docs.google.com/document/d/1ObHAgzA2xN6wRwuwnYzKZrTQBpvIuOVO-RI3RECJNPM/edit?usp=sharing;;;;;;29.74;;61.5
+2026-03-13;;[Корпоративная битва] #23;;Корпоративная игра;;;;;;;;;
+2026-03-11;;[кино и музыка] #207;;ким;;;;;;46.42;;78
+2026-03-12;;[Бинго, плиз!] #20;;Бинго, плиз!;;;;;;;;;
+2026-03-16;;Квиз, плиз! #1256;;классика;;;;Фильм «Аватар»;;36.86;;69
+2026-03-16;;Квиз, плиз! #1256 Light;;классика;;;;Фильм «Аватар»;;35.82;;69
+2026-03-16;;Квиз, плиз! #1257;;классика;;;;Жизнь замечательных людей с фамилией на "Г";;;;38.6;;69
+2026-03-16;;Квиз, плиз! [изи] #26;;классика;;https://docs.google.com/document/d/19yP3g5mGvx6BnFSNdAp1i0mUMngD-nmVh2oDUTSGWTg/edit?usp=sharing;;;;;;45.81;;66.5;;1
+2026-03-17;;[кино и музыка] #207 Light;;ким;;;;;;40.91;;78;;1
+2026-03-17;;18+ #17;;классика;;https://docs.google.com/document/d/1hiTfUb7XwAMh-rVghYxZ57LjbqXmHZNy9fBUGjZncDU/edit?usp=sharing;;;;;;37.72;;54;;3
+2026-03-18;;[топовые фильмы] #4;;Тематические КиМ;;https://docs.google.com/document/d/108zUYwCXIcy_B9CL2hnTmyMZRGc3AtN9rySv44hR0os/edit?usp=sharing;;;;;;41.77;;65.5
+2026-03-18;;[music party] 100 хитов #2;;Тематические КиМ;;https://docs.google.com/document/d/1cYFUB5F45mtyutRX9-fmTzuIyXX_ziSnfH4TEqPeBck/edit?usp=sharing;;;;;;56.37;;112
+2026-03-19;;Церемония открытия сезона игр [кино и музыка] пакет 1;;Церемония Открытия;;https://docs.google.com/document/d/1R8CyLhfaTZhAsbPAaTXFpT1oxGKl_RzCY37naq9_h7U/edit?usp=sharing;;;;;
+2026-03-22;;Церемония открытия сезона игр [кино и музыка] пакет 2;;Церемония Открытия;;;;;;;;;
+2026-03-19;;[кино и музыка] изи #19;;ким;;https://docs.google.com/document/d/1FKqXE49edgqFGscRWxAeEv8tTY86bbh6vThZ9FMICd8/edit?usp=sharing;;;;;;46.05;;74.5;;1
+2026-03-23;;Квиз, плиз! #1258;;классика;;;;Оттенки красного;;41.12;;69
+2026-03-23;;Квиз, плиз! #1258 Light;;классика;;;;Оттенки красного;;40.02;;69
+2026-03-23;;Квиз, плиз! #1259;;классика;;;;Фильм «Амели»;;32.97;;69
+2026-03-23;;Квиз, плиз! #1260;;классика;;;;...КАН...;;32.33;;69
+2026-03-24;;[караоке] только русское #2;;Тематические КиМ;;https://docs.google.com/document/d/1zlOe_7C8ftZ4bYuEuJwyUbsMinjzfqaYXDS4MTlvK1g/edit?usp=sharing;;ex. [караоке] рашн эдишн;;;;44.02;;83.5
+2026-03-24;;Квиз, плиз! [БОЛЬШАЯ ИГРА] #10;;классика;;https://docs.google.com/document/d/1F_3--NDLASARfHES4utFfUCI3KIsTnwBev6pyz2aG0k/edit?usp=sharing;;;;;;71.17;;111;;3
+2026-03-24;;[комиксы] #1;;Тематические КиМ;;https://docs.google.com/document/d/1LqpHMTsPs_SvUv28Oqv4zbMQyWlzu-_lgMJlpUcdCYA/edit?usp=sharing;;Вообще любые комиксы: марвел, дс, ходячие мертвецы, проповедник, хранители, скотт пилигрим, константин, академия амбрелла, город грехов, в значит вендетта, майор гром, русичи против ящера, сказки...;;;;;;67.5
+2026-03-25;;Квиз, плиз! [WTF] #6;;Тематические;;https://docs.google.com/document/d/1ILSMpHA6U-1747Jpz6Rl6T38Y9ea3bBmrHwJHLtaAM4/edit?usp=sharing;;Играем 1 апреля.;;;;19.85;;45;;3
+2026-03-26;;[вселенная Гарри Поттера] #1;;классика;;https://docs.google.com/document/d/11EnbPMRRYYJMQwW0mRI6l6ARGM2M_XoY5cpLstz5ssk/edit?usp=sharing;;;;;;37.8;;62
+2026-03-26;;[кино и музыка] #208;;ким;;;;;;42.43;;78
+2026-03-26;;[Бинго, плиз!] #21;;Бинго, плиз!;;;;;;;;;
+2026-03-30;;Квиз, плиз! #1261;;классика;;;;Гидронимы;;38.72;;69
+2026-03-30;;Квиз, плиз! #1261 Light;;классика;;;;Гидронимы;;42.25;;69
+2026-03-30;;Квиз, плиз! #1262;;классика;;;;Матричная …БОР…;;34.48;;69
+2026-03-30;;Квиз, плиз! [изи] #27;;классика;;https://docs.google.com/document/d/1lyFx1s9_MtFa4VJv2X84LXPjh14UiH73hgXX6No00jY/edit?usp=sharing;;;;;;40.48;;66.5;;1
+2026-03-31;;Квиз, плиз! 100 вопросов обо всем #2;;классика;;https://docs.google.com/document/d/1_T7KB18CogriTHI4GclFQh4foVSK-vlKzCF14_K0b1w/edit?usp=sharing;;;;;;48.72;;85
+2026-03-31;;[меломания] хиты #1;;Тематические КиМ;;https://docs.google.com/document/d/1ylWFHod0-fmn2y6CJKzCYNG5ODHhFfHwIQhFFFOseEY/edit?usp=sharing;;;;;;53.11;;83
+2026-04-01;;[300к1] #14;;классика;;https://docs.google.com/document/d/1KY2nbs_fb653V6Mp2qNmvqFIQPXD4jSOVJXqozSS3Co/edit?usp=sharing;;;;;;55.44;;108;;4
+2026-04-01;;[топовые видеоигры] #2;;классика;;https://docs.google.com/document/d/12NtMd5OTBmrbinHbLr8zXyHMjDLr3_hsqgL0fV6XPeE/edit?usp=sharing;;;;;;36.15;;66
+2026-04-02;;[teens] #50;;Teens;;;;;;;;;
+2026-04-02;;[кино и музыка] изи #20;;ким;;https://docs.google.com/document/d/1uqWZcq1ihlPYx5EoUpielz94KOYOuezpawzM58p8tgc/edit?usp=sharing;;;;;;45.67;;74.5;;1
+2026-04-02;;[кино и музыка] #208 Light;;ким;;;;;;42.5;;78;;1
+2026-04-06;;Квиз, плиз! #1263;;классика;;;;Однофамильцы;;33.09;;69
+2026-04-06;;Квиз, плиз! #1263 Light;;классика;;;;Однофамильцы;;36.85;;69
+2026-04-06;;Квиз, плиз! #1264;;классика;;;;Матричная …ВЕР…;;34.81;;69
+2026-04-06;;Квиз, плиз! #1265;;классика;;;;;;39.18;;69
+2026-04-07;;[кино и музыка] #209;;ким;;;;;;45.55;;78
+2026-04-07;;Квиз, плиз! [про космос] #1;;классика;;https://docs.google.com/document/d/1jjZrt8zBbZZMKLb4xf1e7zrNEQ7rBk-kluWXqzDjYes/edit?usp=sharing;;Игра ко Дню космонавтики. Вопросы про космос, космонавтов и все околокосмические темы;;;;39.31;;60
+2026-04-07;;[music party] только русское #10;;Тематические КиМ;;https://docs.google.com/document/d/1sMfTQ1UL1u6ZAc16xogGDjEWQ790PGYMCdHbKML-FRM/edit?usp=sharing;;;;;;54.16;;95
+2026-04-08;;[топовые комедии] #1;;Тематические КиМ;;https://docs.google.com/document/d/1u48TQ5HD7MhiwFmt7iuLoKIAQB6vJX9cNZjw_CcvmQQ/edit?usp=sharing;;;;;;52.35;;79.5
+2026-04-09;;[назад в 90-е] #12;;классика;;https://docs.google.com/document/d/1BemAfPv9FLHJzm47tFKkziRSSExu8qbicRI8t52jlY0/edit?usp=sharing;;;;;;34.04;;64
+2026-04-12;;[Бинго, плиз!] #22;;Бинго, плиз!;;;;;;;;;
+2026-04-13;;Квиз, плиз! #1266;;классика;;;;;;37.79;;69
+2026-04-13;;Квиз, плиз! #1267;;классика;;;;;;37.37;;69
+2026-04-13;;Квиз, плиз! [изи] #28;;классика;;https://docs.google.com/document/d/144cwx4rhQ4mj45KDIv049FzlHcR0yjln9mXXy5J0HNk/edit?usp=sharing;;;;;;46.63;;66.5;;1
+2026-04-14;;[кино и музыка] #209 Light;;ким;;;;;;38.41;;78;;1
+2026-04-14;;[караоке] #12;;Тематические КиМ;;https://docs.google.com/document/d/1mChzPgKjQBBz49x_Lz30EnuZ0505o2YYdUA95k--C2o/edit?usp=sharing;;;;;;52.57;;83.5
+2026-04-15;;[железные яйца] #8;;классика;;https://docs.google.com/document/d/1z4yas7zU_B-Jd_7JrBFd7QJHvukM597_xop_HLj-daY/edit?usp=sharing;;;;;;77.98;;122;;4
+2026-04-16;;[зумеры vs бумеры] #8;;классика;;https://docs.google.com/document/d/1i3cXacm5zB3hUQUb8bCVidY3ro3OXVI1oy4WmxtG0C4/edit?usp=sharing;;;;;;53.34;;91
+2026-04-16;;[кино и музыка] изи #21;;ким;;https://docs.google.com/document/d/1RF2mPA9YNxDaFvZ6HQksbr9ro5f_077qZr5TiJaGdt0/edit?usp=sharing;;;;;;45.32;;74.5;;1
+2026-04-20;;Квиз, плиз! #1268;;классика;;;;...РОД...;;38.79;;69
+2026-04-20;;Квиз, плиз! #1268 Light;;классика;;;;...РОД...;;41.5;;69
+2026-04-20;;Квиз, плиз! #1269;;классика;;;;...ИЛИ...;;39.15;;69
+2026-04-20;;Квиз, плиз! #1270;;классика;;;;Слова, совпадающие с национальностями в женском роде;;31.76;;69
+2026-04-21;;[кино и музыка] #210;;ким;;;;;;37.04;;78
+2026-04-21;;[меломания] #7;;Тематические КиМ;;https://docs.google.com/document/d/1JmsAASeDq7IINWHiaIdeaLni3cu9wkJjhbLfUpSWMuA/edit?usp=sharing;;;;;;50.03;;83
+2026-04-22;;Квиз, плиз! [здорового человека] #1;;классика;;https://docs.google.com/document/d/1qLR3uraKye3Zdbc5lwUlXdmdYBSoPa9EZNguAEwAthM/edit?usp=sharing;;Игра про здоровье, здоровые привычки и ЗОЖ;;;;27.88;;63
+2026-04-22;;Квиз, плиз! [секретная тема] #1;;классика;;https://docs.google.com/document/d/1ezjNOLgMBhK-JGPcyXdpB7jXT4zr_Y5fk5w2XgQJfz0/edit?usp=sharing;;Эксперимент: случайный набор тем для раундов, темы перемешиваются и обновляются каждую игру;;;;41.08;;60;;3
+2026-04-23;;[аниме] #6;;Тематические КиМ;;https://docs.google.com/document/d/1flssb1x1bY61dMTS4a640oCEj5pl0ChGyeLK-t1ycUI/edit?usp=sharing;;;;;;31.06;;58.5;;3
+2026-04-26;;[Бинго, плиз!] #23;;Бинго, плиз!;;;;;;;;;
+2026-04-27;;Квиз, плиз! #1271;;классика;;;;География с одинаковыми гласными;;34.73;;69
+2026-04-27;;Квиз, плиз! #1271 Light;;классика;;;;География с одинаковыми гласными;;36.31;;69
+2026-04-27;;Квиз, плиз! #1272;;классика;;;;Приметы и суеверия;;43.48;;69
+2026-04-27;;Квиз, плиз! [изи] #29;;классика;;https://docs.google.com/document/d/1q4RIg_a4ikxQKe7_q_KLKISOnfc-FTqCVIebY_FAMZg/edit?usp=sharing;;;;;;38.7;;66.5;;1
+2026-04-28;;[кино и музыка] #210 Light;;ким;;;;;;36.45;;78;;1
+2026-04-28;;[кино и музыка] БОЛЬШАЯ ИГРА #1;;Тематические КиМ;;https://docs.google.com/document/d/1e00fApp209MUKd7SgZdlBRggV1fa7ra5ceSMdmrJpNU/edit?usp=sharing;;10 раундов на кино-музыкальные темы;;;;48.74;;117;;3
+2026-04-29;;Квиз, плиз! [шашлычный] #1;;классика;;https://docs.google.com/document/d/13DxfJpqDzmj-ZtUewKhzGVd5TiMt6KXUaSbQj5tKMQ8/edit?usp=sharing;;В преддверии майских праздников: вопросы о шашлыках, даче, майских праздниках и т.д.;;;;46.44;;80;;1
+2026-04-29;;[music party] рок #4;;Тематические КиМ;;https://docs.google.com/document/d/15x42gLYpYGJ9TwmFWQLWIutiUoerb5DisoaESeN3Xxg/edit?usp=sharing;;;;;;45.76;;87.5
+2026-04-30;;[телеигры] #14;;классика;;https://docs.google.com/document/d/15LWzFfcMsqHHxd83ZCuGrzXKQZ0YFlznP-heNo7TZew/edit?usp=sharing;;;;;;37.48;;92.5
+2026-04-30;;[teens] #51;;Teens;;;;;;;;;
+2026-05-04;;Квиз, плиз! #1273;;классика;;;;-ПАТ-;;32.82;;69
+2026-05-04;;Квиз, плиз! #1273 Light;;классика;;;;-ПАТ-;;35.86;;69
+2026-05-04;;Квиз, плиз! #1274;;классика;;;;Дарья Донцова;;33.62;;69
+2026-05-04;;Квиз, плиз! #1275;;классика;;;;…ОЛЕ…;;36.12;;69
+2026-05-05;;[кино и музыка] #211;;ким;;;;;;38.94;;78
+2026-05-05;;[караоке] русские припевы #2;;Тематические КиМ;;https://docs.google.com/document/d/19C1shrZRTj4Ny3398p91ltJO2n_xCqiANfIZ-NRl3Yc/edit?usp=sharing;;;;;;52.98;;78.5
+2026-05-06;;[назад в СССР] #17;;классика;;https://docs.google.com/document/d/1D_XwB3rU21NSVl-RB_o_xL1h_pn0LUTLe5DKHTWioEc/edit?usp=sharing;;;;;;34.28;;64
+2026-05-06;;[супертурбо] #3;;классика;;https://docs.google.com/document/d/10GiK75gZ8o7vf3RjKmMwFxEnySqR6jgoJsFucFB1h3Y/edit?usp=sharing;;;;;;;87;;3
+2026-05-07;;[видеоигры] #13;;классика;;https://docs.google.com/document/d/1V5a-17Gf4IHF-AjhjVd4kwoYXQZc9DkSNRzNsOoQ0-M/edit?usp=sharing;;;;;;44.92;;66
+2026-05-10;;[Бинго, плиз!] #24;;Бинго, плиз!;;;;;;;;;
+2026-05-11;;Квиз, плиз! #1276;;классика;;;;Леонардо да Винчи;;34.32;;69
+2026-05-11;;Квиз, плиз! #1276 Light;;классика;;;;Леонардо да Винчи;;37.98;;69
+2026-05-11;;Квиз, плиз! #1277;;классика;;;;Инициальная Г.С.;;;;39.75;;69
+2026-05-11;;Квиз, плиз! [изи] #30;;классика;;https://docs.google.com/document/d/1xqQsTKekCcPwUkn1VEIURAFqslzZf5mYbBw0K6AoETw/edit?usp=sharing;;;;;;36.71;;66.5;;1
+2026-05-12;;[кино и музыка] #211 Light;;ким;;;;;;32.73;;78;;1
+2026-05-12;;[кино и музыка] изи #22;;ким;;https://docs.google.com/document/d/1xuZ1SFHwHvXd47boJO9wH8iKNhYXla3dq4u2qaOM6xE/edit?usp=sharing;;;;;;43.77;;74.5;;1
+2026-05-12;;[меломания] 2010-е #1;;Тематические КиМ;;https://docs.google.com/document/d/1S43iqF17IgQvTRCji-hgxQ0974ml-_Eu0PY4htaOW00/edit?usp=sharing;;;;;;55.89;;83
+2026-05-13;;[зелёная игра] #1;;Тематические;;https://docs.google.com/document/d/1zLFHaXvJz43htGQgUZHmqSamtQ9vLkidOkV5OIWafLQ/edit?usp=sharing;;Все вопросы так или иначе связаны с зелёным цветом;;;;34.8;;60;;1
+2026-05-14;;[топовые сериалы] #1;;Тематические КиМ;;https://docs.google.com/document/d/1nJVN2znGA-fskh8M7AMYEPHvaiMNttXLmZB9ZXia7N4/edit?usp=sharing;;;;;;41.56;;64
+2026-05-14;;Квиз, плиз! [включаем логику] #3;;классика;;https://docs.google.com/document/d/1uj2syKk9_1stuQbCxS419CXcKfLMoBAPdOnC11QnVuo/edit?usp=sharing;;;;;;30;;64;;3
+2026-05-18;;Квиз, плиз! #1278;;классика;;;;Названия сериалов;;36.54;;69
+2026-05-18;;Квиз, плиз! #1278 Light;;классика;;;;Названия сериалов;;;;69
+2026-05-18;;Квиз, плиз! #1279;;классика;;;;Сплав по Дунаю;;37.8;;69
+2026-05-18;;Квиз, плиз! #1280;;классика;;;;Матрица -лим-;;33.81;;69
+2026-05-19;;[кино и музыка] #212;;ким;;;;;;49.35;;78
+2026-05-19;;[music party] угадываем хиты #2;;Тематические КиМ;;https://docs.google.com/document/d/1xI1kn3Jt8GlVHHCwT1GfnEpxA1O74xGC9eFYg9wxDIQ/edit?usp=sharing;;;;;;52.41;;90
+2026-05-20;;[треш и угар] 18+ #2;;Тематические;;https://docs.google.com/document/d/1s1bi5Ib6bEwV2kzdyZ-JONOLYtQOPm-x_KSmKW83xnw/edit?usp=sharing;;;;;;37.39;;65.5;;3
+2026-05-20;;[про кино и сериалы] #1;;Тематические КиМ;;https://docs.google.com/document/d/1e_HusM_lo-4WK3LQf3aOSCWUkOPGxFDbA8CpdjQc550/edit?usp=sharing;;;;;;47.61;;71.5
+2026-05-21;;Квиз, плиз! [на выживание] #3;;классика;;https://docs.google.com/document/d/15iqtspfh1pKsjmLo088Y4SjqcOLwf4kz5V5sCPYQFP0/edit?usp=sharing;;;;;;11.47;;92.5;;4
+2026-05-24;;[Бинго, плиз!] летние хиты #1;;Бинго, плиз!;;;;;;;;;
+2026-05-25;;Квиз, плиз! #1281;;классика;;;;Произведения Пушкина;;33.75;;69
+2026-05-25;;Квиз, плиз! #1281 Light;;классика;;;;Произведения Пушкина;;31.08;;69
+2026-05-25;;Квиз, плиз! #1282;;классика;;;;Матричная …ЕЛЕ…;;36.21;;69
+2026-05-25;;Квиз, плиз! [изи] #31;;классика;;https://docs.google.com/document/d/1k-5vfxutxLo27eoXK6ozgoiJrueQ9mEWM9V0Sto2Kjw/edit?usp=sharing;;;;;;39.63;;66.5;;1
+2026-05-26;;[кино и музыка] #212 Light;;ким;;;;;;39;;78;;1
+2026-05-27;;[караоке] #13;;Тематические КиМ;;https://docs.google.com/document/d/15i373kcp0aTOWxZvKYD3xw6Gl63Ah50057Ka86hapik/edit?usp=sharing;;;;;;55.75;;78.5
+2026-05-27;;[назад в детство] #2;;классика;;https://docs.google.com/document/d/1oCud-sK3jNM_uO7mbz-xvvecmjJvIC5MQjOOEIYl2xM/edit?usp=sharing;;;;;;;77
+2026-05-27;;[про футбол] #7;;классика;;https://docs.google.com/document/d/1CqTIWrCOLS-9HodSEB3Uv6N5F0JNqOnyYuBTTGC97IA/edit?usp=sharing;;;;;;44.56;;62.5
+2026-05-28;;Квиз, плиз! [БОЛЬШАЯ ИГРА] #11;;классика;;https://docs.google.com/document/d/1gI-E8km773LZB4wEwIGtEuZUXYVzAIv0F7Yb0u9rGCY/edit?usp=sharing;;;;;;65.15;;111;;3
+2026-05-28;;[] последний звонок #1;;Тематические;;https://docs.google.com/document/d/1L6L9-CMYKul-3u46_rXOIofYzCmXMD-jZysIWflk-zE/edit?usp=sharing;;;;;;31.92;;62;;1
+2026-05-28;;[teens] #52;;Teens;;;;;;;;;
+2026-06-01;;Квиз, плиз! #1283;;классика;;;;Жизнь замечательных людей;;38.07;;69
+2026-06-01;;Квиз, плиз! #1283 Light;;классика;;;;Жизнь замечательных людей;;38.18;;69
+2026-06-01;;Квиз, плиз! #1284;;классика;;;;Степени одного числа;;32.09;;69
+2026-06-01;;Квиз, плиз! #1285;;классика;;;;Подземная;;34.83;;69
+2026-06-02;;[кино и музыка] #213;;ким;;;;;;45.65;;78
+2026-06-02;;[over 1000] #9;;классика;;https://docs.google.com/document/d/1eP52lUGZWI3Mpye8jWWgvFwUkdKILRoX342Ee-_cpPA/edit?usp=sharing;;;;;;34.6;;60
+2026-06-03;;[меломания] рок & рэп #1;;Тематические КиМ;;https://docs.google.com/document/d/1524JQOPrDo8TUEjSL9d6heV7w4LoKoLZGl8mUyBITAw/edit?usp=sharing;;;;;;61.25;;83
+2026-06-03;;[300к1] школьная пора #2;;классика;;https://docs.google.com/document/d/1VXcYUe43N-3XR7zVFUfw9pWDS0OdB9FA6uarb4ovGWA/edit?usp=sharing;;;;;;56.8;;108;;4
+2026-06-03;;[Гарри Поттер] изи #2;;классика;;https://docs.google.com/document/d/12E6aE__rUHyt_uzPKzkcCfQZE81xICQshRzRLRTZi5A/edit?usp=sharing;;;;;;40.84;;60;;1
+2026-06-07;;[Бинго, плиз!] #25;;Бинго, плиз!;;;;;;;;;
+2026-06-04;;ОТКРЫТИЕ ЛЕТНЕГО СЕЗОНА;;Открытие сезона;;https://docs.google.com/document/d/1ZByRGWwnOoqxHg8hVkpm9yh-RBvbYTRRGmDtjzHzT4U/edit?usp=sharing;;;;;
+2026-06-08;;Квиз, плиз! #1286;;классика;;;;-РИС-;;36.74;;69
+2026-06-08;;Квиз, плиз! #1286 Light;;классика;;;;-РИС-;;45.25;;69
+2026-06-08;;Квиз, плиз! #1287;;классика;;;;Инвентарь для лёгкой атлетики;;35.31;;69
+2026-06-08;;Квиз, плиз! [изи] #32;;классика;;https://docs.google.com/document/d/147O96cYVEs9AqJ90nYYRmNdDIzTZ-bCce4VBfnl30tE/edit?usp=sharing;;;;;;41.63;;66.5;;1
+2026-06-09;;[кино и музыка] #213 Light;;ким;;;;;;38.8;;78;;1
+2026-06-09;;[music party] летние хиты #1;;Тематические КиМ;;https://docs.google.com/document/d/1xplUsead0svUXbpAGWh5IeQ2_nzHdMwECc8PxBIs1bA/edit?usp=sharing;;;;;;53.08;;97
+2026-06-09;;[кино и музыка] только русское #7;;Тематические КиМ;;https://docs.google.com/document/d/1MNFrilKIMMUsP-S-AemuUJezXgjbjU6LHG-eO94XMcA/edit?usp=sharing;;ex. [кино и музыка] рашн эдишн;;;;39.12;;80
+2026-06-10;;[мультики 16+] #2;;Тематические КиМ;;https://docs.google.com/document/d/10Ubqfaal5lb9zDmGcytWjpqJtsKMcAa2pYOy2UX8NX0/edit?usp=sharing;;;;;;40.67;;63
+2026-06-10;;Квиз, плиз! 100 вопросов обо всем #3;;классика;;https://docs.google.com/document/d/1aY7PMKStCGoiAS26UOLjjOa8yLSBWiCzVSwSXjayHfc/edit?usp=sharing;;;;;;51.69;;85
+2026-06-15;;Квиз, плиз! #1288;;классика;;;;Кошки;;37.81;;69
+2026-06-15;;Квиз, плиз! #1288 Light;;классика;;;;Кошки;;34.71;;69
+2026-06-15;;Квиз, плиз! #1289;;классика;;;;Мультфильм «Аладдин»;;40.72;;69
+2026-06-15;;Квиз, плиз! #1290;;классика;;;;Леонардо Ди Каприо;;30.76;;69
+2026-06-16;;[кино и музыка] #214;;ким;;;;;;45.24;;78
+2026-06-16;;Квиз, плиз! [БОЛЬШАЯ ИГРА] #12;;классика;;https://docs.google.com/document/d/1dE6zoBfiOgfcWatTZd9z7DdO4DyhvZrtVdw9yZgUWdA/edit?usp=sharing;;;;;;;111;;3
+2026-06-16;;[музыкальная битва] #3;;Тематические КиМ;;https://docs.google.com/document/d/1P1RwWL2KYwqpGYgg0aezElHl6ZnV4rDCbbw23aVIid4/edit?usp=sharing;;;;;;57.04;;111;;3
+2026-06-17;;[девичник] музыкальный #2;;Тематические;;https://docs.google.com/document/d/1rr5HVxYYPaT3Q-mWYDLrvQbuFtVA4ABjsKiGJzlDbLQ/edit?usp=sharing;;;;;;54.06;;80
+2026-06-17;;[мемы и приколы] #5;;классика;;https://docs.google.com/document/d/1epurVao7O9CEIQBQx5WPzwYpS80gw5pxAN08pBB6eQU/edit?usp=sharing;;;;;;39.19;;65.5;;3
+2026-06-17;;[MARVEL vs DC] #2;;классика;;https://docs.google.com/document/d/11Qq8y8jgdJGsD6ir81s3jSCBMtMqnkfZ2M1_ZxxswKc/edit?usp=sharing;;;;;;57.38;;91.5;;3
+2026-06-22;;Квиз, плиз! #1291;;классика;;;;Не только детали машин и механизмов;;32.75;;69
+2026-06-22;;Квиз, плиз! #1291 Light;;классика;;;;Не только детали машин и механизмов;;35.82;;69
+2026-06-22;;Квиз, плиз! #1292;;классика;;;;Чувства;;36.76;;69
+2026-06-22;;Квиз, плиз! [изи] #33;;классика;;https://docs.google.com/document/d/1DDeCe5D29PGw_khwyQfOpNwBGbWiZCEG2istfCI6A7k/edit?usp=sharing;;;;;;50.26;;66.5;;1
+2026-06-23;;[кино и музыка] #214 Light;;ким;;;;;;39.13;;78;;1
+2026-06-23;;[меломания] #8;;Тематические КиМ;;https://docs.google.com/document/d/16wCnzLx_L72MAI9vhAtXMyp-_uXvyaRn1Eq9XOvblxE/edit?usp=sharing;;;;;;49.08;;83
+2026-06-23;;[18+] #18;;классика;;https://docs.google.com/document/d/1EI_xBkEKaWPvXRzDB5tl77qKxPFVylmRrvAJC_xk8Ko/edit?usp=sharing;;;;;;30;;54;;3
+2026-06-24;;[назад в 2000-е] #6;;классика;;https://docs.google.com/document/d/1hT_UUXS8TYxbFdaIAtx69ZtDopJLlNepZhoOaFhSgz4/edit?usp=sharing;;;;;;33.21;;64
+2026-06-24;;[Шрек] #2;;Тематические КиМ;;https://docs.google.com/document/d/1w6jdwJaZBxk244FA_XgpughUgr4aArp5BoYNhA4uvmA/edit?usp=sharing;;;;;;64.94;;84
+2026-06-25;;[afterparty] выпускной #1;;Тематические;;https://docs.google.com/document/d/1L6L9-CMYKul-3u46_rXOIofYzCmXMD-jZysIWflk-zE/edit?usp=sharing;;Контент идентичен игре [afterparty] последний звонок #1.;;;;31.92;;62;;1
+2026-06-25;;[кино и музыка] изи #23;;ким;;https://docs.google.com/document/d/1YTeX3ml81nWGEfGhZGS7bhUasdigQBxMsKTKS5ucHR4/edit?usp=sharing;;;;;;46.43;;74.5;;1
+2026-06-29;;Квиз, плиз! #1293;;классика;;;;Пираты;;37.83;;69
+2026-06-29;;Квиз, плиз! #1293 Light;;классика;;;;Пираты;;33.24;;69
+2026-06-29;;Квиз, плиз! #1294;;классика;;;;Столицы;;36.86;;69
+2026-06-29;;Квиз, плиз! #1295;;классика;;;;Удача;;40.44;;69
+2026-06-30;;[кино и музыка] #215;;ким;;;;;;43.03;;78
+2026-06-30;;[железные яйца] #9;;классика;;https://docs.google.com/document/d/1IrQ2k-c_7w-c69vrNcpTnZGkdpcm3UJRw9VVRy4MWMo/edit?usp=sharing;;;;;;56.75;;121;;4
+2026-06-30;;[music party] 100 хитов #3;;Тематические КиМ;;https://docs.google.com/document/d/1an8A-i7ON-iqGK6jbWZY74VxYvZAkZhjWiv86qG7ANc/edit?usp=sharing;;;;;;69.25;;112
+2026-07-01;;[Отчаянные домохозяйки] #1;;Тематические КиМ;;https://docs.google.com/document/d/1ApsScxNVsOC2U5Tk_fyLxDael-MjBkN3PZm2saqw8uc/edit?usp=sharing;;;;;;48.93;;69.5
+2026-07-01;;[топовые фильмы] #5;;Тематические КиМ;;https://docs.google.com/document/d/1C0Dcx18AG8wV1FtWe_Ta4q46KAuaFFL0qHLp0cuYc2E/edit?usp=sharing;;;;;;34.18;;67
+2026-07-05;;[Бинго, плиз!] #26;;Бинго, плиз!;;;;;;;;;
+2026-07-06;;Квиз, плиз! #1296;;классика;;;;Уильям Шекспир;;41.34;;69
+2026-07-06;;Квиз, плиз! #1296 Light;;классика;;;;Уильям Шекспир;;42.59;;69
+2026-07-06;;Квиз, плиз! #1297;;классика;;;;Стив Джобс;;31.99;;69
+2026-07-06;;Квиз, плиз! [изи] #34;;классика;;https://docs.google.com/document/d/1W48024uFH3ilqMf1tqU6CtiOs-llfRG1eDgUJrkCABQ/edit?usp=sharing;;;;;;34.32;;66.5;;1
+2026-07-07;;[кино и музыка] #215 Light;;ким;;;;;;38.3;;78;;1
+2026-07-07;;[караоке] #14;;Тематические КиМ;;https://docs.google.com/document/d/17p2sJJ8OiplVSmK173qvSR3yYkz3Y1wHGgJLUjL-p-U/edit?usp=sharing;;;;;;55.67;;83.5
+2026-07-08;;[телеигры] #15;;классика;;https://docs.google.com/document/d/12RppFUli3HmSTXmIRcZY63rO3YmptpdyzCNobwoesEo/edit?usp=sharing;;;;;;20.3;;92.5;;3
+2026-07-08;;[кино и музыка] семейная #1;;Тематические КиМ;;https://docs.google.com/document/d/1-Cn49VBXaRvED-1sdS6HxbKauqEREvW38MHH78ygUdE/edit?usp=sharing;;;;;;45.64;;84;;1
+2026-07-09;;[вокруг света] #12;;классика;;https://docs.google.com/document/d/1QjXU72ZJTdKnkb0yB6BEAXNIypStpTsU4f4MfbyrFqY/edit?usp=sharing;;ex. [путешествия].;;;;39.1;;60
+2026-07-13;;Квиз, плиз! #1298;;классика;;;;Названо в честь птиц;;32.05;;69
+2026-07-13;;Квиз, плиз! #1298 Light;;классика;;;;Названо в честь птиц;;33.3;;69
+2026-07-13;;Квиз, плиз! #1299;;классика;;;;Супермаркеты;;38.89;;69
+2026-07-13;;Квиз, плиз! #1300;;классика;;;;Жительницы разных стран;;40.88;;69
+2026-07-14;;[кино и музыка] #216;;ким;;;;;;45.92;;78
+2026-07-14;;[угадываем исполнителей] 2000-е #1;;Тематические КиМ;;https://docs.google.com/document/d/1cukPgMN0jZ6p1gbElqzyCSdCgYMXwSiJrZhwmpZ2iEM/edit?usp=sharing;;;;;;71.21;;92
+2026-07-15;;[культовые сериалы] #2;;Тематические КиМ;;https://docs.google.com/document/d/1ezhfjXhEUjrJOdZBpaiOQpLEcPD0ZMzoYArqFBCKs7Y/edit?usp=sharing;;;;;;60.75;;90
+2026-07-15;;[300к1] 18+ #7;;классика;;https://docs.google.com/document/d/1l1iepILyQt4EVlqGWOID72t6GwwPGb-HkR_kYBblLD4/edit?usp=sharing;;;;;;66.44;;106.5;;4
+2026-07-16;;[киномания] #1;;Тематические КиМ;;https://docs.google.com/document/d/1cATw0uFTumEtx3E-P1vY1aHglLzDRTpxBvlZ2stTftI/edit?usp=sharing;;Формат [меломания] про кино;;;;59.4;;83
+2026-07-20;;Квиз, плиз! #1301;;классика;;;;Дикий Запад;;36.32;;69
+2026-07-20;;Квиз, плиз! #1301 Light;;классика;;;;Дикий Запад;;30.13;;69
+2026-07-20;;Квиз, плиз! #1302;;классика;;;;Фильмы ужасов;;39.45;;69
+2026-07-20;;Квиз, плиз! [изи] #35;;классика;;https://docs.google.com/document/d/1pfhVs7vQt5ZJNz2Fidk7A8EAaPcKNalvbAjcECgsvEg/edit?usp=sharing;;;;;;45.52;;66.5;;1
+2026-07-21;;[music party] только русское #11;;Тематические КиМ;;https://docs.google.com/document/d/1lLHBOns5R8vmcYZCmPLaRY_rFwERFen3cdsBMgw5pvs/edit?usp=sharing;;;;;;60.95;;96
+2026-07-21;;Квиз, плиз! [БОЛЬШАЯ ИГРА] #13;;классика;;https://docs.google.com/document/d/1xQehGgpHbEWBA5I0lqA1aSFBt09tAuGW0wO_P2Lc6CI/edit?usp=sharing;;;;;;;3
+2026-07-22;;[с др, Гарри Поттер!] #1;;классика;;https://docs.google.com/document/d/1w98O3Wtcn7RYnlF2Mzz9d8Q5jBKYGe3F5iww-MoYyaM/edit?usp=sharing;;;;;;40.24;;60
+2026-07-22;;[мемы и приколы] золотая коллекция #1;;классика;;https://docs.google.com/document/d/1MRyLohDcWYAAesvU1qEaQAB1dQGnuDqPsH4wMYHhA3k/edit?usp=sharing;;;;;;42.47;;65.5;;3
+2026-07-23;;[кино и музыка] изи #24;;ким;;https://docs.google.com/document/d/19HwQS_3Lp9eEuL67OuLbSWPqFk9SLTI5sCMAlXPXI-A/edit?usp=sharing;;;;;;49;;74.5;;1
+2026-07-27;;Квиз, плиз! #1303;;классика;;;;Русские сказки;;41.29;;69
+2026-07-27;;Квиз, плиз! #1303 Light;;классика;;;;Русские сказки;;38.39;;69
+2026-07-27;;Квиз, плиз! #1304;;классика;;;;Рога;;42.68;;69
+2026-07-27;;Квиз, плиз! #1305;;классика;;;;Знаки;;36.46;;69
+2026-07-28;;[кино и музыка] #217;;ким;;;;;;42.82;;78
+2026-07-28;;[меломания] #9;;Тематические КиМ;;https://docs.google.com/document/d/119N3yQwusNHPBFlQrbhfQfYKHGv8OyYfEzt8SVt8vIE/edit?usp=sharing;;;;;;46.47;;83
+2026-07-29;;[назад в 90-е] #13;;классика;;https://docs.google.com/document/d/1o0s_f7RZvThsoDvxHRxqCMGrfPJGYNGplP1wMgltsOY/edit?usp=sharing;;;;;;37.88;;64
+2026-07-29;;[топовые фильмы и сериалы] #3;;Тематические КиМ;;https://docs.google.com/document/d/1lUTbSvXsORGifynLDwnrMlp9PFPPowTO1lywfjK1m0I/edit?usp=sharing;;;;;;35.74;;67
+2026-07-30;;[топовые фильмы и сериалы] #3 Light;;Тематические КиМ;;;;;;39;;67;;1
+2026-07-30;;Квиз, плиз! [в картинках] #3;;классика;;https://docs.google.com/document/d/1YCeJ79avn2C2wfXO4WbxXlo7nYoPfCAmXlZfBR47AyA/edit?usp=sharing;;;;;;38.48;;63.5
+2026-08-02;;[Бинго, плиз!] #28;;Бинго, плиз!;;;;;;;;;
+2026-08-03;;Квиз, плиз! #1306;;классика;;;;Слова, начинающиеся на ноту;;47.02;;69
+2026-08-03;;Квиз, плиз! #1306 Light;;классика;;;;Слова, начинающиеся на ноту;;41.3;;69
+2026-08-03;;Квиз, плиз! #1307;;классика;;;;Слова африканского происхождения;;46.47;;69
+2026-08-03;;Квиз, плиз! [изи] #36;;классика;;https://docs.google.com/document/d/1keeeTV0MjL0kDS3TpWVSm_k2vdbuXLMT_BVlE8XfSFo/edit?usp=sharing;;;;;;46.77;;66.5;;1
+2026-08-04;;[кино и музыка] #217 Light;;ким;;;;;;40.09;;78;;1
+2026-08-04;;[угадываем исполнителей] 2010-е #1;;Тематические КиМ;;https://docs.google.com/document/d/1TqMbUy4utB023Bwox1G86wMPvj2kabPfg0BkAvThCzs/edit?usp=sharing;;Делаем ставку на популярных артистов, но треки берём не самые очевидные.;;;;57.4;;90
+2026-08-05;;Квиз, плиз! [включаем логику] #4;;классика;;https://docs.google.com/document/d/1L7yJMXMtptqk8t6NTIe4n3f2FdfarR6DMlws2AvM6-8/edit?usp=sharing;;;;;;30.88;;64;;3
+2026-08-05;;[топовые видеоигры] #3;;классика;;https://docs.google.com/document/d/14dM9g-SMyh7wSmv9fn5cubGCmdC9YpsqNDq0duGVPyw/edit?usp=sharing;;;;;;42.93;;66
+2026-08-06;;[кино и музыка] БОЛЬШАЯ ИГРА #2;;Тематические КиМ;;https://docs.google.com/document/d/1PxiZpAqWxCWfvLrV02qd9QzZVv1kgqwW0MuhMjllbEU/edit?usp=sharing;;;;;;66.6;;117;;3
+2026-08-10;;Квиз, плиз! #1308;;классика;;;;Человек-паук;;42.21;;69
+2026-08-10;;Квиз, плиз! #1308 Light;;классика;;;;Человек-паук;;37.06;;69
+2026-08-10;;Квиз, плиз! #1309;;классика;;;;Деньги;;43.59;;69
+2026-08-10;;Квиз, плиз! #1310;;классика;;;;Достопримечательности;;43.11;;69
+2026-08-11;;[кино и музыка] #218;;ким;;;;;;40.98;;78
+2026-08-11;;[music party] 100 хитов #4;;Тематические КиМ;;https://docs.google.com/document/d/1DgwGOYH9deTCGKf-3LK4ZtNSD2KuFpKqLjXr49hKn0M/edit?usp=sharing;;;;;;62.43;;102
+2026-08-12;;[ностальжи] #4;;Тематические КиМ;;https://docs.google.com/document/d/1oRXizBKB9IrMnYfSqQ5ft4kD42voKTfBoDCP6WYJIME/edit?usp=sharing;;;;;;47.45;;88
+2026-08-12;;[18+] #19;;классика;;https://docs.google.com/document/d/181tOPuJxZL0h0lVYzkyM9bPu55xDAFc8H1qFOqTLzx0/edit?usp=sharing;;;;;;30.11;;54;;3
+2026-08-13;;[жёлтая игра] #1;;Тематические;;https://docs.google.com/document/d/1fg8jNnRRYKMvoJiczBXnaejAmTptdmzpGRs2Hv6uWjU/edit?usp=sharing;;;;;;38.71;;61.5;;1
+2026-08-17;;Квиз, плиз! #1311;;классика;;;;Игра в города;;40.59;;69
+2026-08-17;;Квиз, плиз! #1311 Light;;классика;;;;Игра в города;;35.47;;69
+2026-08-17;;Квиз, плиз! #1312;;классика;;;;Все ответы из букв слова «Модернизация»;;45.38;;69
+2026-08-17;;Квиз, плиз! [изи] #37;;классика;;https://docs.google.com/document/d/1iRKIyRZAJoMTj3tdyvIX68OUhxPT9xvyn800e1VK0OE/edit?usp=sharing;;Новая структура!;;;;48.91;;66.5;;1
+2026-08-18;;[кино и музыка] #218 Light;;ким;;;;;;38.67;;78;;1
+2026-08-18;;[караоке] припевы #2;;Тематические КиМ;;https://docs.google.com/document/d/1n_z1_PXftv2mCnd02vqqH0fQbA84NjKzXh_U1swbt1g/edit?usp=sharing;;;;;;64.66;;81
+2026-08-19;;Квиз, плиз! [секретная тема] #2;;классика;;https://docs.google.com/document/d/1Za7PxVRAqmcrzT83CgE6aZZVLjd-1NiV3oJ-qf8SUYA/edit?usp=sharing;;;;;;34.05;;60;;3
+2026-08-19;;[назад в школу] #5;;классика;;https://docs.google.com/document/d/1FWs0odJNRjqo4o3jQwUYSLyCp-8ghs1tCBcCZnczkzg/edit?usp=sharing;;Немного перепридумываем наполнение: в формате сторителлинга фокусируемся на общих вопросах из школьной жизни;;;;38.74;;60
+2026-08-20;;Квиз, плиз! ва-банк #1;;классика;;https://docs.google.com/document/d/1VI-SIFfz8bSwzW0ix2upBsTxiOmKaasb-_JhCBkFfp4/edit?usp=sharing;;Новый формат, игроки стартуют с максимальным количеством баллов и теряют их;;;;69.07;;115;;3
+2026-08-20;;[кино и музыка] изи #25;;ким;;https://docs.google.com/document/d/1e3tMN0PO5xVOXGTNozUR1xxy7aaIhLiQElKgnWKleBs/edit?usp=sharing;;;;;;52.31;;74.5;;1
+2026-08-24;;Квиз, плиз! #1313;;классика;;;;Слова с двумя одинаковыми слогами;;41.63;;69
+2026-08-24;;Квиз, плиз! #1313 Light;;классика;;;;Слова с двумя одинаковыми слогами;;41.82;;69
+2026-08-24;;Квиз, плиз! #1314;;классика;;;;Школьный;;39.55;;69
+2026-08-24;;Квиз, плиз! #1315;;классика;;;;Анаграммы;;40.21;;69
+2026-08-25;;[кино и музыка] #219;;ким;;;;;;42.66;;78
+2026-08-25;;[меломания] #10;;Тематические КиМ;;https://docs.google.com/document/d/1SKDlGl4uQRHwvk3Q1knATLABGl6rx9t3beGLzDdLcHo/edit?usp=sharing;;;;;;51.07;;83
+2026-08-26;;[afterparty] #11;;Тематические;;https://docs.google.com/document/d/1V7tf4amgWt9W576CnPoxRTu0HtZdcKWyiyl5w4U-lYM/edit?usp=sharing;;;;;;;1
+2026-08-26;;[про кино] 2000-е #3;;Тематические КиМ;;https://docs.google.com/document/d/1clcNKz4IstVnyrHRnpgWGQhZQJdGLvGBjiLe1t4aXJo/edit?usp=sharing;;;;;;58.1;;84
+2026-08-27;;ОТКРЫТИЕ ОСЕННЕГО СЕЗОНА;;Открытие сезона;;https://docs.google.com/document/d/1fM2NztB1kTsdET8pb-eNB7Ti2Kwn9amwOGZdURhwNvA/edit?usp=sharing;;;;;
+2026-08-31;;Квиз, плиз! #1316;;классика;;;;секретная тема «Китай»;;37.98;;69
+2026-08-31;;Квиз, плиз! #1316 Light;;классика;;;;секретная тема «Китай»;;36.71;;69
+2026-08-31;;Квиз, плиз! #1317;;классика;;;;Розовый раунд;;43.83;;69
+2026-08-31;;Квиз, плиз! #1318;;классика;;;;секретная тема «Несклоняемые слова»;;38.48;;69
+2026-08-31;;Квиз, плиз! [изи] #38;;классика;;https://docs.google.com/document/d/1zD3qiSizbnPBV0DY8BS3eenPgkBawm7slFnp1xuXfAc/edit?usp=sharing;;;;;;46.42;;66.5;;1
+2026-09-01;;[кино и музыка] #219 Light;;ким;;;;;;45.89;;78;;1
+2026-09-01;;[музыкальная битва] #4;;Тематические КиМ;;https://docs.google.com/document/d/1dnQNfz7e50vBfBAd1Muqcx43CtTW0Yg_4TXBPyhScts/edit?usp=drive_link;;;;;;65.82;;111;;3
+2026-09-02;;Квиз, плиз! [азарт] #6;;классика;;https://docs.google.com/document/d/1h1SznbJjh6oupOMvnK8LKxvOtf2g5N8VqCGKvWjwl38/edit?usp=sharing;;;;;;68.15;;139;;4
+2026-09-02;;[литература и искусство] #1;;классика;;https://docs.google.com/document/d/1xODCA_9CbWcy-QbvncLz3RqdRBjFusk8LbZpXAPp7jY/edit?usp=sharing;;Охватываем больше игроков, тех, кто давно ждал игру про искусство.;;;;42.56;;56
+2026-09-03;;[про сериалы] ситкомы #1;;Тематические КиМ;;https://docs.google.com/document/d/1rXqHwk8EeKDu4Uly9M5yp5BN-_ZfqIwHUbQo8XrCQpQ/edit?usp=sharing;;Захватываем максимум ситкомов: вопросы в каждом раунде будут про разные сериалы, без пересечений.;;;;52.94;;79
+2026-09-03;;Квиз, плиз! легко и просто #1;;классика;;https://docs.google.com/document/d/1gu5_2n3jixP9qEIVCP9V4S-L45Q9zPRPvdPnITVlDzA/edit?usp=sharing;;Легче, чем [изи]. Суперпростая игра, жвачка для мозга.;;;;45.5;;59;;1
+2026-09-07;;Квиз, плиз! #1319;;классика;;;;Музеи;;46.02;;69
+2026-09-07;;Квиз, плиз! #1319 Light;;классика;;;;Музеи;;42.52;;69
+2026-09-07;;Квиз, плиз! #1320;;классика;;;;Цветы;;36.93;;69
+2026-09-07;;Квиз, плиз! #1321;;классика;;;;Кольцевая география;;34.98;;69
+2026-09-08;;[кино и музыка] #220;;ким;;;;;;42.9;;78
+2026-09-08;;[караоке] хиты #4;;Тематические КиМ;;https://docs.google.com/document/d/1aNPDzhK5qQEONWzQZxBKC_-CHB7jLRfayXFg4VKE-BY/edit?usp=sharing;;;;;;64.03;;81
+2026-09-09;;[про кино] легко и просто #1;;Тематические КиМ;;https://docs.google.com/document/d/1lGSa4xF2O0TYKZinWOeUal57TpvYLO9oZt1xbIuaOx8/edit?usp=sharing;;Супер простая игра про кино и сериалы;;;;45.5;;59;;1
+2026-09-09;;Квиз, плиз! 100 вопросов обо всем #4;;классика;;https://docs.google.com/document/d/1n8INzvWhOldtQJ2N0TbjgEZhlsncdIfhh0CZvNMVR6Q/edit?usp=sharing;;;;;;48.46;;85
+2026-09-10;;[про кино] Человек-паук #1;;Тематические КиМ;;https://docs.google.com/document/d/11cDy_sgqr4TD7Jl4rfpaY2DTMT1D2GbmyIfowV-vrR4/edit?tab=t.0;;;;;;52;;65.5
+2026-09-14;;Квиз, плиз! #1322;;классика;;;;матрица -БАН-;;38.2;;69
+2026-09-14;;Квиз, плиз! [посложнее] #1322;;классика;;;;матрица -БАН-;;44.63;;69;;3
+2026-09-14;;Квиз, плиз! #1323;;классика;;;;Все оттенки синего;;39.75;;69
+2026-09-14;;Квиз, плиз! #1324;;классика;;;;Спортсмены и чемпионы;;34.86;;69
+2026-09-14;;Квиз, плиз! [изи] #39;;классика;;https://docs.google.com/document/d/1ga7s8eXbgMmCDqEJsIitWDjB8qZoq_6oBnC-VZgkf1o/edit?usp=sharing;;;;;;51.49;;66.5;;1
+2026-09-15;;[меломания] #11;;Тематические КиМ;;https://docs.google.com/document/d/1BHEfc0ZQwMAZZF2S6u2y-dmITvs-XCuNLHtKiV-a7Ck/edit?usp=sharing;;;;;;57.26;;83
+2026-09-15;;[кино и музыка] зумеры #1;;Тематические КиМ;;https://docs.google.com/document/d/1ncvR5-izDShjToA0Oofh5Al2gTw5Rakg9aw9gGLSOgE/edit?usp=sharing;;Затронем контент, на котором выросли зумеры и то, что сейчас популярно у поколения;;;;46.34;;78;;1
+2026-09-16;;[телеигры] #16;;классика;;https://docs.google.com/document/d/12gitkyfDSL1UgR9aKg_knRyzNm681gXH1KXY59OU2Hg/edit?usp=sharing;;;;;;33.02;;92.5
+2026-09-18;;[девичник] #3;;Тематические;;https://docs.google.com/document/d/1mjCPdRO53E657Gs335xU7ZTbJ4wurydmyPs08Bs_4S0/edit?usp=sharing;;;;;;40.86;;62;;1
+2026-09-21;;Квиз, плиз! #1325;;классика;;;;Индия;;39.03;;69
+2026-09-21;;Квиз, плиз! [посложнее] #1325;;классика;;;;;;;69;;3
+2026-09-21;;Квиз, плиз! #1326;;классика;;;;Транспортные средства;;37.28;;69
+2026-09-21;;Квиз, плиз! #1327;;классика;;;;Секретный цвет;;34.95;;69
+2026-09-22;;[кино и музыка] #221;;ким;;;;;;47.25;;78
+2026-09-22;;[музыкальная битва] #5;;Тематические КиМ;;https://docs.google.com/document/d/1-UZt9bosJ6Mk0-hV_A7HMgYAV7PHukNrvfEuvazAH_I/edit?usp=sharing;;;;;;74.78;;111;;3
+2026-09-23;;[Ранетки] #1;;Тематические КиМ;;https://docs.google.com/document/d/1OfE-ywIIDCdaO8NlK390zlPX22gqvU5U43iDyR4NkTA/edit?usp=sharing;;Экспериментальный пакет.;;;;54.52;;64
+2026-09-23;;[300к1] #15;;классика;;https://docs.google.com/document/d/18FAEHQz-MzRA70hw9GBafSfThw4AYcTJC8KHebwiJmw/edit?usp=sharing;;;;;;60.27;;106.5;;4
+2026-09-24;;[кино и музыка] изи #26;;ким;;https://docs.google.com/document/d/11jaE7rtsOyjBYC_XOyWpIu_YnTWjYu1UnAhHTVZRfvo/edit?usp=sharing;;;;;;47.37;;74.5;;1
+2026-09-24;;[топовые мультики] #4;;Тематические КиМ;;https://docs.google.com/document/d/1AZy_eBZK-TeOZ5U0gjVZ-BuB-GrgX8_0gVxctUJ2J4Q/edit?usp=sharing;;;;;;45.05;;66;;1
+2026-09-28;;Квиз, плиз! #1328;;классика;;;;Однофамильцы;;31.26;;69
+2026-09-28;;Квиз, плиз! #1329;;классика;;;;Ч. М.;;;;47.34;;69
+2026-09-28;;Квиз, плиз! [изи] #40;;классика;;https://docs.google.com/document/d/1ntwdQox0hDddDwwNQCS0_hq9SV3Yy7jpYDqlyi62PwA/edit?usp=sharing;;;;;;46.26;;66.5;;1
+2026-09-29;;[кино и музыка] #221 Light;;ким;;;;;;41.52;;78;;1
+2026-09-29;;Квиз, плиз! [БОЛЬШАЯ ИГРА] #14;;классика;;https://docs.google.com/document/d/18LE_4qA2M0PaHJyTOVvcNwck8y_FNdJeJasFWyDKoOg/edit?usp=sharing;;;;;;;3
+2026-09-29;;[угадываем исполнителей] #1;;Тематические КиМ;;https://docs.google.com/document/d/1ty0uDGfnFhFqV3saf_VDuj6uWw7O29UlIKnK1ejRB5I/edit?usp=sharing;;;;;;48.67;;90
+2026-09-30;;Квиз, плиз! [хорроры] #1;;классика;;https://docs.google.com/document/d/16LyLSUB-X2L-RcDChd821KTEj8oobQukY4_8DtD7hwM/edit?usp=sharing;;;;;;43.24;;55;;3
+2026-09-30;;[про кино] Сумерки #2;;Тематические КиМ;;https://docs.google.com/document/d/1QkDcGd5PShbt63daf37QJFRkuPbirjfa5xEc9RyIYnQ/edit?usp=sharing;;;;;;46.24;;62.5
+2026-10-01;;Церемония открытия сезона игр [кино и музыка] пакет 1;;Церемония Открытия;;https://docs.google.com/document/d/108kp-MiioDUoTA99qLCIR3fVzIpz3-ZjdHySrXUdtEo/edit?usp=sharing;;;;;
+2026-10-02;;Квиз, плиз! [с ответами] #1;;классика;;https://docs.google.com/document/d/1Fp-LCu-Ux_tGAEJqrFlbcRwh4g8QZ41RPv72qb6iz04/edit?usp=sharing;;Формат, похожий на Бинго, плиз!, но без вытягивания бочонков.;;;;1
+2026-10-05;;Квиз, плиз! #1330;;классика;;;;Стрижки и причёски;;37.51;;69
+2026-10-05;;Квиз, плиз! [посложнее] #1330;;классика;;;;Стрижки и причёски;;;;3
+2026-10-05;;Квиз, плиз! #1331;;классика;;;;Части тела выше плеч;;39.07;;69
+2026-10-05;;Квиз, плиз! #1332;;классика;;;;Начинается на Ф;;39.79;;69
+2026-10-06;;[кино и музыка] #222;;ким;;;;;;42.47;;78
+2026-10-06;;[караоке] только русское #3;;Тематические КиМ;;https://docs.google.com/document/d/1muSQSGomVeYZqKysSnrQi6WZYyhQyQuYTWrHaxC2Bwk/edit?usp=sharing;;;;;;42.47;;78
+2026-10-07;;[киномания] #2;;Тематические КиМ;;https://docs.google.com/document/d/1WIAH1GyzNSA-2dcASKG6tkuT4zKup7vDKlfxBXqwSCE/edit?usp=sharing;;;;;;62.65;;83
+2026-10-08;;[про пиво] #1;;классика;;https://docs.google.com/document/d/1hwO8Jf7V8qLPGxhqfXeOMbEFMu6h0cyaywCz9ed2Az4/edit?usp=sharing;;Хорошая игра для коллабы с пивными компаниями;;;;36.91;;59.5;;1
+2026-10-12;;Квиз, плиз! #1333;;классика;;;;Кругосветка;;33.23;;69
+2026-10-12;;Квиз, плиз! #1334;;классика;;;;Континенты;;33.86;;69
+2026-10-12;;Квиз, плиз! #1335;;классика;;;;Золотой;;41.94;;69
+2026-10-12;;Квиз, плиз! [изи] #41;;классика;;https://docs.google.com/document/d/1NzAJgL47-ofEd8i5jJwew9yADNAG_gYA4ZzcMw0ebIA/edit?usp=sharing;;;;;;44.15;;66.5;;1
+2026-10-13;;[кино и музыка] посложнее #222;;ким;;;;;;;3
+2026-10-13;;[меломания] мировые хиты #1;;Тематические КиМ;;https://docs.google.com/document/d/1RglCLDxq_4bNYgPfCEsXrCmQJzFLsMeuhhSq4tbTpS4/edit?usp=sharing;;;;;;54.47;;83
+2026-10-14;;Квиз, плиз! [сюрприз] #9;;классика;;https://docs.google.com/document/d/1PINn2LvDqmDHfcNOXS13C1j4tWTUGKbP-flA8eiQJEU/edit?usp=sharing;;;;;;33.21;;46;;3
+2026-10-14;;[аниме] #7;;Тематические КиМ;;https://docs.google.com/document/d/12dkXqgY12hf4_bO6Qpcv8mhDOPyhIOIv4qSIy-FGmkk/edit?usp=sharing;;;;;;;58.5;;3
+2026-10-15;;[Сваты] #1;;Тематические КиМ;;https://docs.google.com/document/d/1boGQeLatCY8MelrrqNBY7p0PFZLVN1p7sgqnyiFlfRc/edit?usp=sharing;;;;;;53.82;;74.5
+2026-10-15;;[девичник] шабаш #2;;Тематические;;https://docs.google.com/document/d/1yQySYMNRodGGB4DdSlu0nwwYGG9LbzDdLDbbj1bi0o8/edit?usp=sharing;;;;;;32.32;;65.5;;1
+2026-10-19;;Квиз, плиз! #1336;;классика;;;;Геометрические фигуры;;37.78;;69
+2026-10-19;;Квиз, плиз! [посложнее] #1336;;классика;;;;Геометрические фигуры;;38.38;;69;;3
+2026-10-19;;Квиз, плиз! #1337;;классика;;;;Игры;;37.83;;69
+2026-10-19;;Квиз, плиз! #1338;;классика;;;;Хэллоуин;;38.94;;69
+2026-10-20;;[угадываем исполнителей] 90-00-е #1;;Тематические КиМ;;https://docs.google.com/document/d/1MneAObLy5kkuV0CX74kzTMTwMaaAM3qKi1FTFL035g8/edit?usp=sharing;;;;;;58.83;;90
+2026-10-21;;Квиз, плиз! [криминальный] #2;;классика;;https://docs.google.com/document/d/1QTlK7XJuINkPaRgFE3MB3A3EUEtCOynUtNn99bNv94U/edit?usp=sharing;;;;;;45.71;;70.5
+2026-10-22;;[ХЕЛЛОУИН] #6;;классика;;https://docs.google.com/document/d/1EbH-eqS0UAAsGU2_zAxPJtiMUAkqmfwsTFRwjwmDBeY/edit?usp=sharing;;ex. [HALLOWEEN].;;;;;;
+2026-10-22;;[кино и музыка] изи #27;;ким;;https://docs.google.com/document/d/11stNXC73eLo7vXKx0NhJSUm-bZ4Ob64GQshsRh2dXvc/edit?usp=sharing;;;;;;56.57;;74.5;;1
+2026-10-26;;Квиз, плиз! #1339;;классика;;;;Интеллектуальные игры;;38.59;;69
+2026-10-26;;Квиз, плиз! [посложнее] #1339;;классика;;;;Интеллектуальные игры;;37.5;;69;;3
+2026-10-26;;Квиз, плиз! #1340;;классика;;;;Бельгия;;33.7;;69
+2026-10-26;;Квиз, плиз! [изи] #42;;классика;;https://docs.google.com/document/d/1K-50HJI7DgsBVzZuYGUXdmAfomFX1F0CQb0VErm37bw/edit?usp=sharing;;;;;;;1
+2026-10-27;;[кино и музыка] посложнее #223;;ким;;;;;;;3
+2026-10-27;;Квиз, плиз! [включаем логику] #5;;классика;;https://docs.google.com/document/d/11hHxMJgzVJymT-zYv1KSq3_0KZ_qjgltU6b0HASyOOQ/edit?usp=sharing;;;;;;;3
+2026-10-28;;[назад в СССР] #18;;классика;;https://docs.google.com/document/d/10gcRNeqFv9qs5sOecn6bMrwU3ilbI7jVs36NcZkNkVY/edit?usp=sharing;;;;;;;;
+2026-10-28;;[треш и угар] 18+ #3;;классика;;https://docs.google.com/document/d/1RB56G23uWbRGZtM_aUBEcQoWnAAjb8qYlG515jW20Mk/edit?usp=sharing;;;;;;;3
+2026-10-29;;[music party] изи 2010-е #1;;Тематические КиМ;;https://docs.google.com/document/d/19p82u4mVWSCPydsqYjwcoCC0TvrbrBbjOg7qjzFU49E/edit?usp=sharing;;;;;;;1
+2026-10-27;;[Отчаянные домохозяйки] #2;;Тематические КиМ;;https://docs.google.com/document/d/1n9ESynIBPM01NC8a4odJaXQrLo_hmcdq7of3v6AFZ4c/edit?usp=sharing;;;;;;;;
+2026-11-02;;Квиз, плиз! #1341;;классика;;;;;;43.23;;69
+2026-11-02;;Квиз, плиз! #1342;;классика;;;;;;36.17;;69
+2026-11-02;;Квиз, плиз! #1343;;классика;;;;;;35.09;;69
+2026-11-03;;[музыкальная битва] #6;;Тематические КиМ;;https://docs.google.com/document/d/1Sm6ngckzzUvkdpZvoWL8A0Z54gwtwim1gMl1DdVSCMY/edit?usp=sharing;;;;;;;3
+2026-11-03;;[караоке] припевы #3;;Тематические КиМ;;https://docs.google.com/document/d/1cktODqQiaC_iOjUREW1uC-q_aoDBkoIiFskAfZ_IDcM/edit?usp=sharing;;;;;;;;
+2026-11-04;;[мемы и приколы] #6;;классика;;https://docs.google.com/document/d/1HLoIsTpi9c4fP16AYUSJY79R1KmglcRJVgQ1XKnyTl8/edit?usp=sharing;;;;;;;3
+2026-11-05;;[топовые фильмы] #6;;Тематические КиМ;;https://docs.google.com/document/d/1h6XWoJ7XjDQdbGl7GFfTLFiJl0DoMX5-rVecfVY8srU/edit?usp=sharing;;;;;;;;
+2026-11-05;;[Кухня] #1;;Тематические КиМ;;https://docs.google.com/document/d/1WJpIIh3ls41O0kQYBR7sKY0K29dDOowkX0Ku0h2x0QI/edit?usp=sharing;;Игра по российскому сериалу;;;;;;
+2026-11-09;;Квиз, плиз! #1344;;классика;;;;;;42.74;;69
+2026-11-09;;Квиз, плиз! [посложнее] #1344;;классика;;;;;;;3
+2026-11-09;;Квиз, плиз! #1345;;классика;;;;;;;;
+2026-11-09;;Квиз, плиз! [изи] #43;;классика;;https://docs.google.com/document/d/1sVGPWBFbte4Ij93OCZ8lBVBoE3FdzPFQHhQnRZY_yIA/edit?usp=sharing;;;;;;;1
+2026-11-10;;[кино и музыка] #224 хард;;ким;;;;;;;3
+2026-11-10;;[угадываем исполнителей] иностранщина #1;;Тематические КиМ;;https://docs.google.com/document/d/1hf1RewU65LqOb0o5C0WuaJnweIk77aHW_PsfQ44y-Cc/edit?usp=sharing;;;;;;;;
+2026-11-11;;Квиз, плиз! [БОЛЬШАЯ ИГРА] #15;;классика;;https://docs.google.com/document/d/1zpSYO3qbkfFvM8I4rF5GBtT8Ayt5DTUiN3tddXSKb8I/edit?usp=sharing;;;;;;;3
+2026-11-12;;Квиз, плиз! легко и просто #2;;классика;;https://docs.google.com/document/d/1A2_-ACixAArnnBc9qCfqQOZrbEbml3A3lHnSB2HZLGw/edit?usp=sharing;;;;;;;1
+2026-11-12;;[кино и музыка] изи #28;;ким;;https://docs.google.com/document/d/1qaKgpiCJ5zX5LnnlUm751Q9LIHtdAHfjimf6iWWq_fw/edit?usp=sharing;;;;;;;1
+2026-11-13;;[назад в 2010-20-е] #1;;классика;;https://docs.google.com/document/d/1tec1MxPreM3CKDRPC_A0Gq0fYGzCkb9fxnMe_M9b2nE/edit?usp=sharing;;Затрагиваем главные события, тренды и явления с 2010 года по настоящее время.;;;;;;
+2026-11-16;;Квиз, плиз! #1346;;классика;;;;;;;;
+2026-11-16;;Квиз, плиз! #1347;;классика;;;;;;;;
+2026-11-16;;Квиз, плиз! #1348;;классика;;;;;;;;
+2026-11-17;;[music party] 100 хитов #5;;Тематические КиМ;;https://docs.google.com/document/d/1OfQuyuzVvRLrSO8AFilRNhY0iEAWri4ii3ZD4ksT0U8/edit?usp=sharing;;;;;;;;
+2026-11-19;;[Голодные игры] #1;;Тематические КиМ;;;;Игра без спойлеров по всей вселенной (не включая новый фильм). 4.12 выйдет версия с раундом, затрагивающим новинку.;;;;;;
+2026-11-19;;[девичник] фильмы и сериалы #2 / [женские фильмы и сериалы] #2;;Тематические КиМ;;;;Два шаблона – в формате девичника (не идет в рейтинг) и в формате обычной игры (идет в рейтинг [кино и музыка]);;;;;;
+2026-11-23;;Квиз, плиз! #1349;;классика;;;;;;;;
+2026-11-23;;Квиз, плиз! [посложнее] #1349;;классика;;;;;;;3
+2026-11-23;;Квиз, плиз! #1350;;классика;;;;;;;;
+2026-11-23;;Квиз, плиз! [изи] #44;;классика;;;;;;;1
+2026-11-24;;[кино и музыка] #225 хард;;ким;;;;;;;3
+2026-11-24;;[music party] кринж #3;;Тематические КиМ;;;;ex. [music party] кринж эдишн;;;;;;
+2026-11-26;;ОТКРЫТИЕ ЗИМНЕГО СЕЗОНА;;Открытие сезона;;;;;;;;;
+2026-11-26;;[видеоигры] #14;;классика;;;;С раундом про GTA (к выходу новой части);;;;;;
+2026-11-27;;Квиз, плиз! [с ответами] #2;;классика;;;;;;;1
+2026-11-30;;Квиз, плиз! #1351;;классика;;;;;;;;
+2026-11-30;;Квиз, плиз! #1352;;классика;;;;;;;;
+2026-11-30;;Квиз, плиз! #1353;;классика;;;;;;;;
+2026-12-02;;Квиз, плиз! [секретная тема] #3;;классика;;;;;;;3
+2026-12-03;;[HELLO 2027] #1;;классика;;;;;;;;
+2026-12-03;;[кино и музыка] БОЛЬШАЯ ИГРА #3;;Тематические КиМ;;;;;;;3
+2026-12-04;;[Голодные игры] #1 (с раундом про новый фильм);;Тематические КиМ;;;;Новый раунд к игре [Голодные игры] #1 про новый фильм. Остальной контент идентичен!;;;;;
+2026-12-07;;Квиз, плиз! #1354;;классика;;;;;;;;
+2026-12-07;;Квиз, плиз! #1354 хард;;классика;;;;;;;3
+2026-12-07;;Квиз, плиз! #1355;;классика;;;;;;;;
+2026-12-07;;Квиз, плиз! [изи] #45;;классика;;;;;;;1
+2026-12-08;;[кино и музыка] #226 хард;;ким;;;;;;;3
+2026-12-08;;[кино и музыка] новогодний изи #2;;ким;;;;;;;1
+2026-12-08;;[советское кино] #2;;Тематические КиМ;;;;;;;;
+2026-12-09;;[music party] только русское #12;;Тематические КиМ;;;;;;;;
+2026-12-09;;[назад в 90-00-е] #1;;классика;;;;;;;;
+2026-12-10;;Квиз, плиз! [включаем логику] #6;;классика;;;;;;;3
+2026-12-10;;Квиз, плиз! 100 вопросов обо всем #5;;классика;;;;;;;;
+2026-12-14;;Квиз, плиз! #1356;;классика;;;;;;;;
+2026-12-14;;Квиз, плиз! #1357;;классика;;;;;;;;
+2026-12-14;;Квиз, плиз! #1358;;классика;;;;;;;;
+2026-12-15;;[меломания] новогодняя #2;;Тематические КиМ;;;;;;;;
+2026-12-16;;Квиз, плиз! [с ответами] #3;;классика;;;;;;;1
+2026-12-17;;[мемы и приколы] золотая коллекция #2;;классика;;;;;;;3
+2026-12-18;;[советские комедии] #2;;Тематические КиМ;;;;;;;;
+2026-12-21;;Квиз, плиз! #1359;;классика;;;;;;;;
+2026-12-21;;Квиз, плиз! #1359 хард;;классика;;;;;;;3
+2026-12-21;;Квиз, плиз! #1360;;классика;;;;;;;;
+2026-12-21;;Квиз, плиз! [изи] новогодний #2;;классика;;;;;;;1
+2026-12-22;;[кино и музыка] #227 хард;;ким;;;;;;;3
+2026-12-22;;[советские мультфильмы] #3;;Тематические КиМ;;;;;;;;
+2026-12-22;;[угадываем исполнителей] только русское #1;;Тематические КиМ;;;;;;;;
+2026-12-23;;Квиз, плиз! [БОЛЬШАЯ ИГРА] #16;;классика;;;;;;;3
+2026-12-23;;[MARVEL] #7;;Тематические КиМ;;;;;;;;
+2026-12-24;;Квиз, плиз! легко и просто #3;;классика;;;;;;;1
+2026-12-24;;Гарри Поттер [с ответами] #1;;Тематические КиМ;;;;;;;;
+2026-12-24;;[девичник] новогодний #2;;Тематические;;;;;;;1
+2026-12-24;;Новогодняя Ёлка Квиз, плиз! #3;;классика;;;;Игра спецпроекта «Корпоративная Ёлка Квиз, плиз!» под другим названием.;;;;;;
+2026-12-28;;Квиз, плиз! #1361;;классика;;;;;;;;
+2026-12-28;;Квиз, плиз! #1362;;классика;;;;;;;;
+2026-12-28;;Квиз, плиз! #1363;;классика;;;;;;;;
+2026-12-29;;[караоке] под ёлкой #2;;ким;;;;;;;1
+2026-12-30;;[afterparty] в салате #2;;Тематические;;;;;;;1
+`;
+
+/* ============ ПАРСЕР ============ */
+/*
+ * Формат строки (по данным Excel, колонки):
+ * ДАТЫ ВЫДАЧИ ;; НАЗВАНИЕ ;; РЕЙТИНГ ;; ГАЙДЛАЙН ;; АННОТАЦИЯ ;; [пусто] ;; [пусто]
+ *   ;; СЕКРЕТНАЯ_ТЕМА ;; СРЕДНИЙ_БАЛЛ ;; МАКС_БАЛЛОВ ;; [СЛОЖНОСТЬ]
+ *
+ * Из-за того, что пустые поля гайда и аннотации «сворачиваются» в один разделитель,
+ * строки имеют разное число полей. Нормализуем по типу значений.
+ */
+function parseGamesCSV(raw){
+  if(!raw) return [];
+  const num = v => { if(v==null||v==='') return null; const n=Number(String(v).replace(',','.')); return isNaN(n)?null:n; };
+  return raw.trim().split('\n').filter(l=>l&&!l.startsWith('#')).map(line=>{
+    const p = line.split(';;').map(s=>s.trim());
+    const date = p[0] || null;
+    const title = p[1] || '';
+    const rating = p[2] || '';
+
+    // Полноформатная строка (9 полей) — парсим позиционно по схеме
+    if(p.length >= 9){
+      return {
+        date, title, rating,
+        guide: p[3] || null,
+        description: p[4] || null,
+        secret: p[5] || null,
+        average: num(p[6]),
+        maxScore: num(p[7]),
+        complexity: num(p[8])
+      };
+    }
+
+    // Короткая строка — нормализуем по типу
+    const rest = p.slice(3);
+    const urls = [], nums = [], texts = [];
+    for(const f of rest){
+      if(!f) continue;
+      if(/^https?:\/\//i.test(f)) urls.push(f);
+      else if(/^\d+(?:[.,]\d+)?$/.test(f)) nums.push(Number(f.replace(',','.')));
+      else if(/[a-zа-яё0-9]/i.test(f)) texts.push(f);
+    }
+    let guide = urls[0] || null;
+    let description = null, secret = null;
+    let average = null, maxScore = null, complexity = null;
+
+    // Числовой «хвост» по схеме: average, maxScore, complexity
+    if(nums.length >= 3){ average=nums[0]; maxScore=nums[1]; complexity=nums[2]; }
+    else if(nums.length === 2){
+      if(nums[1] <= 4 && nums[0] > 4){ maxScore = nums[0]; complexity = nums[1]; }
+      else { average = nums[0]; maxScore = nums[1]; }
+    } else if(nums.length === 1){
+      if(nums[0] <= 4) complexity = nums[0]; else average = nums[0];
+    }
+
+    // Тексты: первый — описание, последний — секретная тема.
+    // Один текст: длинный/с пунктуацией -> описание, короткий -> секретная тема.
+    if(texts.length >= 2){ description = texts[0]; secret = texts[texts.length-1]; }
+    else if(texts.length === 1){
+      const t = texts[0];
+      if(t.length > 25 || /[.,!?;:()]/.test(t)) description = t;
+      else secret = t;
+    }
+
+    return { date, title, rating, guide, description, secret, average, maxScore, complexity };
+  });
+}
+const G = parseGamesCSV(RAW_DATA);
+
+/* ============ КОНСТАНТЫ ============ */
+const MAX_SCORE = 140;
+const SEARCH_CONFIG = { MIN_QUERY_LEN: 2, DEBOUNCE_MS: 280, SEMANTIC_THRESHOLD: 3 };
+const UNIVERSAL_GUIDE_APPLIES_TO = ['classic','kim'];
+const NO_DESCRIPTION = 'описания нет, но вы держитесь';
+const NO_GUIDE = 'гайда нет, почему не знаю';
+
+/* ============ СИНОНИМЫ ============ */
+const SYNONYMS = {
+  'азия': ['китай','япония','корея','индия','восток','тайланд','вьетнам','азиатский'],
+  'китай': ['азия','восток','китайский','поднебесная'],
+  'япония': ['азия','восток','токио','аниме','японский','сакура'],
+  'индия': ['азия','восток','болливуд','индийский'],
+  'европа': ['франция','германия','италия','испания','англия','европейский'],
+  'сша': ['америка','голливуд','американский','штаты'],
+  'ссср': ['советский','союз','советский союз'],
+  'кино': ['фильм','кинематограф','movie','кинокартина','боевик','комедия','драма'],
+  'музыка': ['песня','исполнитель','трек','хит','music','композиция','мелодия'],
+  'игры': ['видеоигры','компьютерные','gaming','гейминг','игровой'],
+  'аниме': ['япония','манга','отаку','анимация'],
+  'литература': ['книга','роман','писатель','поэт','стихи','проза'],
+  'спорт': ['футбол','бокс','олимпиада','хоккей','спортивный','чемпионат'],
+  'еда': ['блюдо','кулинария','ресторан','пища','гастрономия','кухня'],
+  'алкоголь': ['вино','водка','пиво','коктейль','спиртной','алкогольный'],
+  'животные': ['звери','кошки','собаки','рыбы','птицы','фауна'],
+  'космос': ['звёзды','планета','космонавт','space','вселенная','галактика'],
+  'новый год': ['новогодний','праздник','ёлка','праздничный'],
+  'хэллоуин': ['halloween','ужас','страшный','хоррор'],
+  'путешествия': ['страны','города','география','travel','поездка'],
+  'география': ['страны','города','континент','путешествие','карта'],
+  'марвел': ['marvel','мстители','avengers','супергерой'],
+  'дисней': ['disney','pixar','пиксар','мультфильм','мультик'],
+  'гарри поттер': ['поттер','hogwarts','хогвартс','волшебник','магия'],
+  'властелин': ['толкин','средиземье','хоббит','кольца'],
+  'футбол': ['спорт','мяч','гол','чемпионат'],
+  '90-е': ['девяностые','девяностых','назад в 90'],
+  '2000-е': ['нулевые','двухтысячные','назад в 2000']
+};
+
+const UNIVERSAL_GUIDES = {
+  classic:{theme:'Классика',title:'Универсальный гайд для тематики «Классика»',body:'<h3>Открытие и частота игр</h3><p>Первые 4–5 игр проводите с разрывом в 1 игру в две недели. Регистрацию открывайте сначала на одну игру.</p><h3>Реквизит</h3><ul><li>Бланки и дипломы за 1-2-3 места.</li><li>Таблички: чёрные у всех, с ранга «Рэмбо» — неименные, «Чак» — именная, «Недосягаемые» — именная и именные бланки.</li></ul><h3>Структура (с #1117)</h3><p>Разминка (8×4), Логика (8), Shazam (8 медиа), Три стула (8 блоков × 3 вопроса: 0,5/1/1,5), Хардкор (4×2), Несекретные темы (12), Последний шанс (12, ставка +1).</p>'},
+  kim:{theme:'КиМ',title:'Универсальный гайд для тематики «Кино и музыка»',body:'<h3>Цель и частота</h3><p>Одну игру [кино и музыка] в месяц, но не чаще 2 раз в месяц.</p><h3>Структура</h3><ol><li>Фильм. Фильм. Фильм. — 12×1.</li><li>Хоп Хей Лалалей — 12×1.</li><li>Включаем логику — 6×1.</li><li>Сериалы и мультфильмы — 6×1.</li><li>Ну кто так поет? — 6×3 подсказки (2/1/0,5).</li><li>Тематический — 6×1.</li><li>Последний шанс — 12×ставка +1.</li></ol><p>13-й вопрос — «сцена после титров» через QR-код.</p><h3>Рейтинг</h3><p>Отдельный рейтинг [кино и музыка]. Указывайте ранг команды и количество оскаров.</p>'}
+};
+
+/* ============ МЕТАДАННЫЕ ============ */
+const METADATA_BY_TITLE = {
+  'назад в ссср #10':{design:'Новый дизайн',needsActualization:'Не требует актуальности',deadline:'Ничего не делаем с игрой',hasDesign:'Есть'},
+  'телеигры #7':{design:'Новый дизайн',needsActualization:'Не требует актуальности',deadline:'Ничего не делаем с игрой',hasDesign:'Есть'},
+  '18+ #11':{design:'Новый дизайн',needsActualization:'Не требует актуальности',deadline:'Ничего не делаем с игрой',hasDesign:'Есть'},
+  'мемы и приколы #1':{design:'Новый дизайн',needsActualization:'Не требует актуальности',deadline:'Ничего не делаем с игрой',hasDesign:'Есть'},
+  '[про футбол] #4':{design:'Старый дизайн',needsActualization:'Проверена в 2024',deadline:'1 рабочая неделя',hasDesign:'Есть'},
+  '[300к1] 18+ #2':{design:'Старый дизайн',needsActualization:'Нужно проверить на актуальность',deadline:'1 рабочая неделя',hasDesign:'Есть'},
+  '[назад в ссср] #5':{design:'Старый дизайн',needsActualization:'Нужно проверить на актуальность',deadline:'1 рабочая неделя',hasDesign:'Есть'}
+};
+function normalizeTitle(t){return String(t||'').toLowerCase().trim()}
+function getMetadata(title){
+  const key=normalizeTitle(title);
+  if(METADATA_BY_TITLE[key]) return METADATA_BY_TITLE[key];
+  for(const k of Object.keys(METADATA_BY_TITLE)) if(key.includes(k)) return METADATA_BY_TITLE[k];
+  return {design:null,needsActualization:null,deadline:null,hasDesign:null};
+}
+
+/* ============ ТЕМЫ ============ */
+const THEME_ORDER = ['Классика','Тематические','КиМ','Тематические КиМ','Бинго, плиз!','Teens','Открытие сезона','Церемония Открытия','Битва Сфер','Корпоративная игра','Стримы'];
+const THEME_LABEL = {'классика':'Классика','ким':'КиМ','тинс':'Teens','Бинго, плиз!':'Бинго, плиз!','Тематические':'Тематические','Тематические КиМ':'Тематические КиМ','Открытие сезона':'Открытие сезона','Церемония Открытия':'Церемония Открытия','Битва Сфер':'Битва Сфер','Корпоративная игра':'Корпоративная игра','Стримы':'Стримы'};
+const THEME_ICONS = {'Классика':'🎯','Тематические':'🎉','КиМ':'🎬','Тематические КиМ':'🎞','Бинго, плиз!':'🎱','Teens':'🎒','Открытие сезона':'🎊','Церемония Открытия':'🏆','Битва Сфер':'⚔️','Корпоративная игра':'💼','Стримы':'💻'};
+const THEME_COLORS = {'Классика':'#ff5cb1','Тематические':'#ff8ad4','КиМ':'#b060ff','Тематические КиМ':'#c084fc','Бинго, плиз!':'#e879f9','Teens':'#a78bfa','Открытие сезона':'#f472b6','Церемония Открытия':'#f472b6','Битва Сфер':'#22d3ee','Корпоративная игра':'#60a5fa','Стримы':'#38bdf8'};
+const DIFFS = {1:{label:'Лёгкая',color:'#4ade80'},2:{label:'Обычная',color:'#fbbf24'},3:{label:'Сложная',color:'#fb7185'},4:{label:'Хардкор',color:'#f43f5e'}};
+
+/* ============ УТИЛИТЫ ============ */
+const $ = (s,r=document) => r.querySelector(s);
+const $$ = (s,r=document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmt = n => (n==null||n==='')?'—':(typeof n==='number'?(Number.isInteger(n)?String(n):n.toFixed(2).replace(/\.?0+$/,'')):String(n));
+const MONTHS_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const MONTHS_NOM=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const WEEKDAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const startOfWeekMonday = d => { const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); const day=x.getDay()||7; x.setDate(x.getDate()-(day-1)); return x; };
+const endOfWeekSunday = m => { const x=new Date(m); x.setDate(x.getDate()+6); return x; };
+const isoDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const parseIso = iso => { if(!iso) return null; const d=new Date(iso+'T00:00:00'); return isNaN(d.getTime())?null:d; };
+const formatRange = (a,b) => { const same=a.getMonth()===b.getMonth(); const r=same?`${a.getDate()}–${b.getDate()} ${MONTHS_GEN[a.getMonth()]}`:`${a.getDate()} ${MONTHS_GEN[a.getMonth()]} – ${b.getDate()} ${MONTHS_GEN[b.getMonth()]}`; return `${r} ${b.getFullYear()}`; };
+const formatDateRu = iso => { const d=parseIso(iso); return d?`${d.getDate()} ${MONTHS_GEN[d.getMonth()]} ${d.getFullYear()}`:null; };
+const isoWeek = d => { const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()+3-((x.getDay()+6)%7)); const w1=new Date(x.getFullYear(),0,4); return 1+Math.round(((x-w1)/86400000-3+((w1.getDay()+6)%7))/7); };
+const getYear = iso => { const d=parseIso(iso); return d?d.getFullYear():null; };
+const isUpcoming = iso => { const d=parseIso(iso); if(!d) return false; const t=new Date(); t.setHours(0,0,0,0); return d>t; };
+
+/* ============ GAMES ============ */
+const GAMES = G.map((g,i)=>{
+  const ratingKey=g.rating;
+  const theme=THEME_LABEL[ratingKey]||ratingKey||'Тематические';
+  let complexity=g.complexity;
+  if(complexity==null){
+    const t=g.title||'';
+    if(/Light|изи|легко и просто|новогодний изи/i.test(t)) complexity=1;
+    else if(/хард|посложнее|18\+|300к1|железные яйца|супертурбо/i.test(t)) complexity=3;
+    else complexity=2;
+  }
+  const isUniversal=(theme==='Классика'&&/^Квиз,?\s*плиз/i.test(g.title))||(theme==='КиМ'&&/^\[кино и музыка\]\s*(#|Light|изи|БОЛЬШАЯ|посложнее|хард|новогодний)/i.test(g.title));
+  const appliesTo=theme==='Классика'?['classic']:(theme==='КиМ'&&isUniversal)?['kim']:[];
+  const meta=getMetadata(g.title);
+  return {id:'g'+i,date:g.date,year:getYear(g.date),title:g.title,rating:ratingKey,theme,guide:g.guide||null,description:g.description||NO_DESCRIPTION,secret:g.secret||null,average:g.average,maxScore:g.maxScore,complexity,guideType:isUniversal?'universal':'custom',appliesTo,design:meta.design,needsActualization:meta.needsActualization,deadline:meta.deadline,hasDesign:meta.hasDesign,upcoming:isUpcoming(g.date)};
+});
+
+/* ============ ПОИСК ============ */
+function levenshtein(a,b){
+  if(a===b) return 0;
+  const m=a.length,n=b.length;
+  if(!m) return n; if(!n) return m;
+  let prev=Array.from({length:n+1},(_,i)=>i);
+  for(let i=1;i<=m;i++){
+    const cur=[i];
+    for(let j=1;j<=n;j++){
+      cur[j]=Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1));
+    }
+    prev=cur;
+  }
+  return prev[n];
+}
+function tokenizeQuery(q){return String(q||'').toLowerCase().split(/[^a-zа-яё0-9]+/i).map(t=>t.trim()).filter(t=>t.length>=SEARCH_CONFIG.MIN_QUERY_LEN);}
+function stemWord(w){
+  if(!w||w.length<4) return w;
+  // специфичные окончания — раньше общих; 'й' в конце для пар «музей/музеи»
+  const endings=['ями','ами','ыми','ими','ого','его','ому','ему','ов','ев','ий','ый','ой','ая','ое','ые','ых','им','ым','ом','ем','ах','ях','ам','ям','а','о','е','ы','и','у','ю','я','ь','й'];
+  for(const e of endings){if(w.endsWith(e)&&(w.length-e.length)>=3) return w.slice(0,-e.length);}
+  return w;
+}
+function getGameWords(g){const parts=[g.title,g.description,g.secret,g.theme].filter(Boolean); return parts.join(' ').toLowerCase().split(/[^a-zа-яё0-9]+/i).filter(w=>w.length>0);}
+function wordMatchesToken(word,token){
+  if(!word||!token) return false;
+  if(word===token) return true;
+  const ws=stemWord(word), ts=stemWord(token);
+  if(ws===ts) return true;
+  if(token.length>=3&&word.startsWith(token)) return true;
+  if(word.length>=3&&token.startsWith(word)) return true;
+  // нечёткое совпадение (опечатки / формы)
+  if(Math.abs(word.length-token.length)<=2){
+    const maxD=token.length>=7?2:(token.length>=4?1:0);
+    if(maxD>0){
+      if(levenshtein(ws,ts)<=maxD) return true;
+      if(levenshtein(word,token)<=maxD) return true;
+    }
+  }
+  return false;
+}
+function matchExact(g,qs){if(!qs.length) return true; const words=getGameWords(g); return qs.every(qt=>words.some(w=>wordMatchesToken(w,qt)));}
+function expandWithSynonyms(tokens){const exp=new Set(); for(const tok of tokens){for(const [key,syns] of Object.entries(SYNONYMS)){const kw=key.toLowerCase().split(/\s+/); const m=kw.some(w=>wordMatchesToken(w,tok)); if(m) for(const s of syns) exp.add(s);}} return Array.from(exp);}
+function searchGames(query){
+  const trimmed=String(query||'').trim();
+  if(trimmed.length<SEARCH_CONFIG.MIN_QUERY_LEN) return {results:GAMES,mode:'all',exactCount:GAMES.length,semanticCount:0};
+  const tokens=tokenizeQuery(trimmed);
+  if(!tokens.length) return {results:GAMES,mode:'all',exactCount:GAMES.length,semanticCount:0};
+  const exactGames=[]; const exactSet=new Set();
+  for(const g of GAMES){if(matchExact(g,tokens)){exactGames.push(g); exactSet.add(g);}}
+  let semanticGames=[]; const semanticSet=new Set();
+  if(exactGames.length<SEARCH_CONFIG.SEMANTIC_THRESHOLD){
+    const expanded=expandWithSynonyms(tokens);
+    if(expanded.length){for(const g of GAMES){if(exactSet.has(g)) continue; const m=expanded.some(syn=>{const st=tokenizeQuery(syn); return matchExact(g,st);}); if(m){semanticGames.push(g); semanticSet.add(g);}}}
+  }
+  const results=[...exactGames,...semanticGames];
+  if(!results.length) return {results:GAMES,mode:'fallback',exactCount:0,semanticCount:0,query:trimmed};
+  return {results,mode:semanticGames.length?'with-semantic':'exact',exactCount:exactGames.length,semanticCount:semanticGames.length,exactSet,semanticSet};
+}
+
+/* ============ STATE ============ */
+const state={search:'',searchResult:null,themes:new Set(),diffs:new Set(),years:new Set(),scoreMin:0,scoreMax:MAX_SCORE,weeks:new Set(),pendingWeeks:new Set(),calMonth:null,calOpen:false,calPicker:null,searchGen:0,debounceTimer:null};
+const WEEK_COUNTS=(()=>{const m=new Map(); GAMES.forEach(g=>{const d=parseIso(g.date); if(!d) return; const k=isoDate(startOfWeekMonday(d)); m.set(k,(m.get(k)||0)+1);}); return m;})();
+const MONTH_RANGE=(()=>{const dates=GAMES.map(g=>parseIso(g.date)).filter(Boolean).sort((a,b)=>a-b); if(!dates.length){const n=new Date(); return {min:new Date(n.getFullYear(),n.getMonth(),1),max:new Date(n.getFullYear(),n.getMonth(),1)};} const a=dates[0],b=dates[dates.length-1]; return {min:new Date(a.getFullYear(),a.getMonth(),1),max:new Date(b.getFullYear(),b.getMonth(),1)};})();
+/* Годы от старых к новым */
+const ALL_YEARS=(()=>{const y=new Set(); GAMES.forEach(g=>{if(g.year) y.add(g.year);}); return Array.from(y).sort((a,b)=>a-b);})();
+
+/* ============ ФИЛЬТРЫ ============ */
+function weekKeyOf(g){const d=parseIso(g.date); return d?isoDate(startOfWeekMonday(d)):'__unknown__';}
+function hasActiveFilters(){return !!(state.search||state.themes.size||state.diffs.size||state.years.size||state.weeks.size||state.scoreMin>0||state.scoreMax<MAX_SCORE);}
+function passesFilters(g){
+  if(state.themes.size&&!state.themes.has(g.theme)) return false;
+  if(state.diffs.size&&!state.diffs.has(g.complexity)) return false;
+  if(state.years.size&&!state.years.has(g.year)) return false;
+  if(state.weeks.size&&!state.weeks.has(weekKeyOf(g))) return false;
+  if(typeof g.average==='number'){if(g.average<state.scoreMin||g.average>state.scoreMax) return false;}
+  else if(state.scoreMin>0||state.scoreMax<MAX_SCORE) return false;
+  return true;
+}
+function getDisplayed(){
+  let pool, searchInfo;
+  if(state.search){searchInfo=searchGames(state.search); state.searchResult=searchInfo; pool=searchInfo.results;}
+  else {searchInfo=null; state.searchResult=null; pool=GAMES;}
+  return {games:pool.filter(passesFilters), searchInfo};
+}
+
+/* ============ КАРТОЧКИ ============ */
+function diffStars(c){const d=DIFFS[c]||DIFFS[2]; let on='',off=''; for(let i=1;i<=4;i++) i<=c?on+='★':off+='☆'; return `<span class="difficulty" style="--dc:${d.color}"><span class="stars"><span class="star-on">${on}</span><span class="star-off">${off}</span></span><b>${d.label}</b></span>`;}
+function renderDescription(desc){
+  if(!desc) return '';
+  const t=String(desc).trim();
+  if(!t) return '';
+  if(t.includes('\n')){return t.split(/\n+/).filter(Boolean).map(l=>/^[•\-—]/.test(l.trim())?`<li>${esc(l.replace(/^[•\-—]\s*/,''))}</li>`:`<p>${esc(l)}</p>`).join('');}
+  if(t.length<=120) return `<p>${esc(t)}</p>`;
+  const s=t.split(/(?<=[.!?])\s+(?=[А-ЯЁA-Z])/).filter(x=>x.trim().length>0);
+  if(s.length<=1) return `<p>${esc(t)}</p>`;
+  return `<ul>${s.map(x=>`<li>${esc(x.trim())}</li>`).join('')}</ul>`;
+}
+function renderCard(g,isSemantic){
+  const color=THEME_COLORS[g.theme]||'#ff5cb1';
+  const icon=THEME_ICONS[g.theme]||'•';
+  const desc=g.description&&g.description!==NO_DESCRIPTION?renderDescription(g.description):`<p>${esc(NO_DESCRIPTION)}</p>`;
+  /* Мета: секретная тема, средний балл, максимум баллов — с прочерком при отсутствии */
+  const secretVal = g.secret ? esc(g.secret) : '—';
+  const avgVal = typeof g.average === 'number' ? fmt(g.average) : '—';
+  const maxVal = typeof g.maxScore === 'number' ? fmt(g.maxScore) : '—';
+  const metaHtml = `<span>🔑 ${secretVal}</span><span>ср. ${avgVal}</span><span>макс. ${maxVal}</span>`;
+  const dateStr=formatDateRu(g.date);
+  const upcoming=g.upcoming;
+  const lockHtml=upcoming?`<div class="card-lock-overlay"><div style="text-align:center"><div class="lock-icon">🔒</div></div><div class="lock-text">кто возьмет-тот лох</div></div>`:``;
+  const lockBadge=upcoming?`<span class="card-badge locked">🔒 скоро</span>`:``;
+  const semanticBadge=isSemantic?`<span class="card-badge semantic">похоже по смыслу</span>`:``;
+  return `<a href="#/game/${encodeURIComponent(g.id)}" class="card ${upcoming?'card--locked':''}" style="--cc:${color}" aria-label="${esc(g.title)}${upcoming?' (ещё не вышла)':''}">${lockHtml}<div class="card-top"><span>${icon} ${esc(g.theme)}</span>${lockBadge}${semanticBadge}</div><h3 class="card-title">${esc(g.title)}</h3><div class="card-desc desc-structured">${desc}</div>${dateStr?`<div style="margin-bottom:10px;"><span class="card-date">📅 ${esc(dateStr)}</span></div>`:``}<div class="card-meta">${metaHtml}</div><div class="card-footer">${diffStars(g.complexity)}<span aria-hidden="true" style="color:var(--muted)">→</span></div></a>`;
+}
+
+function groupByWeeks(list){
+  const map=new Map();
+  list.forEach(g=>{const k=weekKeyOf(g); if(!map.has(k)) map.set(k,{key:k,monday:k!=='__unknown__'?new Date(k+'T00:00:00'):null,games:[]}); map.get(k).games.push(g);});
+  const groups=Array.from(map.values()).sort((a,b)=>{if(a.key==='__unknown__') return 1; if(b.key==='__unknown__') return -1; return a.monday-b.monday;});
+  groups.forEach(g=>g.games.sort((a,b)=>{
+    const da=a.date||'9999-99-99';
+    const db=b.date||'9999-99-99';
+    if(da!==db) return da.localeCompare(db);
+    return a.title.localeCompare(b.title,'ru');
+  }));
+  return groups;
+}
+function groupByYears(list){
+  const map=new Map();
+  list.forEach(g=>{const y=g.year||'unknown'; if(!map.has(y)) map.set(y,[]); map.get(y).push(g);});
+  const years=Array.from(map.keys()).sort((a,b)=>{if(a==='unknown') return 1; if(b==='unknown') return -1; return a-b;});
+  return years.map(y=>({year:y,games:map.get(y)}));
+}
+function pluralizeGames(n){if(n%10===1&&n%100!==11) return 'игра'; if([2,3,4].includes(n%10)&&![12,13,14].includes(n%100)) return 'игры'; return 'игр';}
+
+function renderWeekGroups(list,searchInfo){
+  const yearGroups=groupByYears(list);
+  if(!yearGroups.length) return `<div class="empty"><h2>Пока пусто</h2><p>Ничего не нашлось по заданным фильтрам.</p><button class="cta" onclick="expandFilters()">🔍 Расширить фильтры</button></div>`;
+  let html='';
+  if(searchInfo){
+    if(searchInfo.mode==='fallback') html+=`<div class="result"><span class="warn">По запросу «${esc(searchInfo.query)}» ничего не найдено. Показываем весь каталог.</span></div>`;
+    else if(searchInfo.mode==='with-semantic') html+=`<div class="result"><span>Точных совпадений: <b>${searchInfo.exactCount}</b></span><span class="sem">Похожих по смыслу: <b>${searchInfo.semanticCount}</b></span></div>`;
+    else html+=`<div class="result"><span>Найдено: <b>${searchInfo.exactCount}</b></span></div>`;
+  }
+  html+=`<div class="year-section">`;
+  yearGroups.forEach(({year,games})=>{
+    const yearLabel=year==='unknown'?'Год не указан':year;
+    const filteredYear=games.filter(g=>list.includes(g));
+    if(!filteredYear.length) return;
+    html+=`<section class="year-section" data-year="${year}"><header class="year-head"><h2>${esc(String(yearLabel))}</h2><span class="year-count">${filteredYear.length} ${pluralizeGames(filteredYear.length)}</span></header>`;
+    const weeks=groupByWeeks(filteredYear);
+    html+=`<div class="weeks">${weeks.map(group=>{
+      let label,sub;
+      if(group.key==='__unknown__'){label='Дата выхода неизвестна'; sub='Дата';}
+      else {const monday=group.monday,sunday=endOfWeekSunday(monday); label=formatRange(monday,sunday); sub='Неделя';}
+      return `<section class="week-group"><header class="week-header"><span class="week-prefix">${sub}</span><span class="week-range">${esc(label)}</span><span class="week-count">${group.games.length} ${pluralizeGames(group.games.length)}</span></header><div class="grid">${group.games.map(g=>{const isSem=searchInfo&&searchInfo.semanticSet&&searchInfo.semanticSet.has(g); return renderCard(g,isSem);}).join('')}</div></section>`;
+    }).join('')}</div></section>`;
+  });
+  html+=`</div>`;
+  return html;
+}
+window.expandFilters=function(){state.themes.clear(); state.diffs.clear(); state.weeks.clear(); state.years.clear(); state.scoreMin=0; state.scoreMax=MAX_SCORE; renderCatalog();};
+
+/* ============ КАЛЕНДАРЬ ============ */
+function getCalMonth(){if(state.calMonth) return state.calMonth; if(state.weeks.size===1){const k=Array.from(state.weeks)[0]; if(k!=='__unknown__'){const d=new Date(k+'T00:00:00'); if(!isNaN(d.getTime())) return new Date(d.getFullYear(),d.getMonth(),1);}} return new Date(MONTH_RANGE.min);}
+function renderCalendar(){
+  const month=getCalMonth();
+  const first=new Date(month.getFullYear(),month.getMonth(),1);
+  const firstMonday=startOfWeekMonday(first);
+  const canPrev=month>MONTH_RANGE.min;
+  const canNext=month<MONTH_RANGE.max;
+  const weeks=[];
+  for(let w=0;w<6;w++){const monday=new Date(firstMonday); monday.setDate(monday.getDate()+w*7); const key=isoDate(monday); const count=WEEK_COUNTS.get(key)||0; const days=[]; for(let i=0;i<7;i++){const d=new Date(monday); d.setDate(d.getDate()+i); days.push(d);} weeks.push({monday,key,count,days});}
+  const isSel=k=>state.pendingWeeks.has(k);
+  const picker=state.calPicker;
+  const monthPicker=picker==='month'?`<div class="cal-picker is-open"><div class="cal-picker-grid months">${MONTHS_NOM.map((m,i)=>`<button class="cal-picker-cell ${i===month.getMonth()?'is-current':''}" type="button" data-month="${i}">${m}</button>`).join('')}</div></div>`:'';
+  const yearPicker=picker==='year'?`<div class="cal-picker is-open"><div class="cal-picker-grid years">${(()=>{const out=[]; for(let y=MONTH_RANGE.min.getFullYear();y<=MONTH_RANGE.max.getFullYear();y++) out.push(`<button class="cal-picker-cell ${y===month.getFullYear()?'is-current':''}" type="button" data-year="${y}">${y}</button>`); return out.join('');})()}</div></div>`:'';
+  return `
+    <div class="cal-head">
+      <button class="cal-nav" type="button" data-cal-nav="-1" ${canPrev?'':'disabled'} aria-label="Предыдущий месяц">‹</button>
+      <button class="cal-title-btn" type="button" data-picker="month">${MONTHS_NOM[month.getMonth()]}</button>
+      <button class="cal-title-btn" type="button" data-picker="year">${month.getFullYear()}</button>
+      <button class="cal-nav" type="button" data-cal-nav="1" ${canNext?'':'disabled'} aria-label="Следующий месяц">›</button>
+    </div>
+    ${monthPicker}
+    ${yearPicker}
+    <div class="cal-wd-row"><span></span>${WEEKDAYS.map(d=>`<span class="cal-wd">${d}</span>`).join('')}</div>
+    ${weeks.map(w=>{
+      const has=w.count>0; const sel=has&&isSel(w.key);
+      const cls=['cal-week',has?'has-games':'empty',sel?'sel':''].filter(Boolean).join(' ');
+      return `<div class="${cls}" data-week="${w.key}" role="button" tabindex="${has?0:-1}" aria-pressed="${sel}" aria-label="Неделя ${isoWeek(w.monday)}, ${w.count} игр">
+        <div class="cal-wnum" title="ISO-неделя ${isoWeek(w.monday)}">${isoWeek(w.monday)}</div>
+        ${w.days.map(d=>{const outside=d.getMonth()!==month.getMonth(); return `<div class="cal-day ${outside?'outside':''}"><span>${d.getDate()}</span>${w.count?`<span class="cnt">${w.count}</span>`:''}</div>`;}).join('')}
+      </div>`;
+    }).join('')}
+    <div class="cal-foot">
+      <button class="cal-btn" type="button" data-week-all>Все недели</button>
+      <button class="cal-btn" type="button" data-week-cancel>Отмена</button>
+      <button class="cal-btn primary" type="button" data-week-ok>ОК</button>
+    </div>
+  `;
+}
+function weekLabel(key){if(key==='__unknown__') return 'Дата выхода неизвестна'; const monday=new Date(key+'T00:00:00'); if(isNaN(monday.getTime())) return key; return formatRange(monday,endOfWeekSunday(monday));}
+function renderPeriodBlock(){
+  let label='Весь период'; if(state.weeks.size===1) label=weekLabel(Array.from(state.weeks)[0]); else if(state.weeks.size>1) label=`${state.weeks.size} недели`;
+  return `<div class="period-wrap" id="period-wrap"><button class="period-trigger ${state.weeks.size?'has-selection':''}" type="button" id="period-trigger" aria-expanded="${state.calOpen}"><span class="icon">🗓</span><span class="label">${esc(label)}</span><span class="count">${state.weeks.size||'∞'}</span><span>▾</span></button><div class="period-popover ${state.calOpen?'is-open':''}" id="period-popover" role="dialog" aria-label="Календарь недель">${renderCalendar()}</div></div>`;
+}
+
+/* ============ КАТАЛОГ ============ */
+function renderFilters(){
+  const cTheme={}; THEME_ORDER.forEach(t=>cTheme[t]=0); GAMES.forEach(g=>{if(cTheme[g.theme]!=null) cTheme[g.theme]++;});
+  const cDiff={1:0,2:0,3:0,4:0}; GAMES.forEach(g=>{if(cDiff[g.complexity]!=null) cDiff[g.complexity]++;});
+  const themeChips=THEME_ORDER.map(t=>`<button class="theme-chip" type="button" data-theme="${esc(t)}" aria-pressed="${state.themes.has(t)}">${esc(t)} <small style="opacity:.65">${cTheme[t]}</small></button>`).join('');
+  const diffChips=Object.keys(DIFFS).map(k=>{const n=Number(k),d=DIFFS[n],pressed=state.diffs.has(n); return `<button class="chip diff-chip" type="button" data-diff="${n}" aria-pressed="${pressed}" style="--dc:${d.color}"><span class="chip-check">✓</span><span class="dot"></span>${esc(d.label)}<span class="chip-count">${cDiff[n]}</span></button>`;}).join('');
+  const yearChips=ALL_YEARS.map(y=>`<button class="year-chip" type="button" data-year-filter="${y}" aria-pressed="${state.years.has(y)}">${y}</button>`).join('');
+  return `<div class="toolbar"><div class="row"><label class="search" style="flex:2 1 320px"><span>🔎</span><input id="search-input" type="search" placeholder="Поиск: от 2 символов, по словам и синонимам" value="${esc(state.search)}"><button class="search-clear" id="search-clear" type="button" aria-label="Очистить поиск">×</button></label><button class="reset ${hasActiveFilters()?'on':''}" id="reset-all" type="button">✕ Сбросить всё</button></div><div class="row"><div class="block"><div class="flabel"><span>Год</span><small style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">от старых к новым</small></div><div class="year-chips">${yearChips}</div></div></div><div class="row"><div class="block"><div class="flabel"><span>Тематики</span><button class="reset" type="button" id="toggle-all-themes" style="padding:3px 10px;font-size:.72rem">${state.themes.size===THEME_ORDER.length?'Снять все':'Выбрать все'}</button></div><div class="theme-chips">${themeChips}</div></div></div><div class="row"><div class="block"><div class="flabel"><span>Сложность</span><button class="reset" type="button" id="toggle-all-diffs" style="padding:3px 10px;font-size:.72rem">${state.diffs.size===4?'Снять все':'Все сложности'}</button></div><div class="filters">${diffChips}</div></div></div><div class="row"><div class="block"><div class="flabel">Средний балл</div><div class="score"><small>min</small><input type="range" id="score-min" min="0" max="${MAX_SCORE}" step="1" value="${state.scoreMin}"><output id="score-min-out">${state.scoreMin}</output><small>max</small><input type="range" id="score-max" min="0" max="${MAX_SCORE}" step="1" value="${state.scoreMax}"><output id="score-max-out">${state.scoreMax}</output></div></div></div><div class="row"><div class="block"><div class="flabel">Период <small style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">только недели</small></div>${renderPeriodBlock()}</div></div></div>`;
+}
+
+function renderCatalog(){
+  const input=document.getElementById('search-input');
+  const selStart=input?input.selectionStart:null;
+  const selEnd=input?input.selectionEnd:null;
+  const hadFocus=document.activeElement===input;
+  const hadValue=state.search;
+  const {games:filtered,searchInfo}=getDisplayed();
+  const avg=(()=>{const w=filtered.filter(g=>typeof g.average==='number'); if(!w.length) return null; return (w.reduce((s,g)=>s+g.average,0)/w.length).toFixed(1);})();
+  $('#view').innerHTML=`<section class="hero"><h1>График игр</h1><p>Расписание игровых презентаций Квиз, плиз! Сгруппировано по годам от старых к новым. Выберите игру, чтобы открыть гайд.</p></section>${renderFilters()}<div class="result"><span>Всего в выборке: <b>${filtered.length}</b> из ${GAMES.length}</span>${avg?`<span class="avg">Средний балл: ${avg}</span>`:''}</div>${renderWeekGroups(filtered,searchInfo)}`;
+  bindCatalog();
+  if(hadFocus){const ni=document.getElementById('search-input'); if(ni){ni.value=hadValue; ni.focus(); try{ni.setSelectionRange(selStart,selEnd);}catch(e){}}}
+}
+
+function bindCatalog(){
+  const search=$('#search-input');
+  if(search){
+    search.addEventListener('input',()=>{
+      const v=search.value; state.search=v.trim();
+      const myGen=++state.searchGen; clearTimeout(state.debounceTimer);
+      if(state.search.length<SEARCH_CONFIG.MIN_QUERY_LEN){state.searchResult=null; renderCatalog(); return;}
+      state.debounceTimer=setTimeout(()=>{if(myGen!==state.searchGen) return; renderCatalog();},SEARCH_CONFIG.DEBOUNCE_MS);
+    });
+    $('#search-clear').addEventListener('click',()=>{state.search=''; state.searchResult=null; state.searchGen++; clearTimeout(state.debounceTimer); renderCatalog(); const ni=$('#search-input'); if(ni) ni.focus();});
+  }
+  const reset=$('#reset-all');
+  if(reset) reset.addEventListener('click',()=>{state.search=''; state.themes.clear(); state.diffs.clear(); state.years.clear(); state.weeks.clear(); state.pendingWeeks.clear(); state.scoreMin=0; state.scoreMax=MAX_SCORE; state.searchGen++; clearTimeout(state.debounceTimer); state.searchResult=null; renderCatalog();});
+  $$('[data-theme]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.theme; state.themes.has(t)?state.themes.delete(t):state.themes.add(t); renderCatalog();}));
+  const tAll=$('#toggle-all-themes');
+  if(tAll) tAll.addEventListener('click',()=>{if(state.themes.size===THEME_ORDER.length) state.themes.clear(); else THEME_ORDER.forEach(t=>state.themes.add(t)); renderCatalog();});
+  $$('[data-diff]').forEach(b=>b.addEventListener('click',()=>{const n=Number(b.dataset.diff); state.diffs.has(n)?state.diffs.delete(n):state.diffs.add(n); renderCatalog();}));
+  const dAll=$('#toggle-all-diffs');
+  if(dAll) dAll.addEventListener('click',()=>{if(state.diffs.size===4) state.diffs.clear(); else [1,2,3,4].forEach(n=>state.diffs.add(n)); renderCatalog();});
+  $$('[data-year-filter]').forEach(b=>b.addEventListener('click',()=>{const y=Number(b.dataset.yearFilter); state.years.has(y)?state.years.delete(y):state.years.add(y); renderCatalog();}));
+  const sMin=$('#score-min'),sMax=$('#score-max'),sMinOut=$('#score-min-out'),sMaxOut=$('#score-max-out');
+  let scoreT=null;
+  const onSlide=()=>{let a=Number(sMin.value),b=Number(sMax.value); if(a>b){a=b; sMin.value=a;} state.scoreMin=a; state.scoreMax=b; sMinOut.textContent=a; sMaxOut.textContent=b; clearTimeout(scoreT); scoreT=setTimeout(renderCatalog,200);};
+  if(sMin) sMin.addEventListener('input',onSlide);
+  if(sMax) sMax.addEventListener('input',onSlide);
+  const trigger=$('#period-trigger'), popover=$('#period-popover');
+  if(trigger&&popover){
+    trigger.addEventListener('click',e=>{
+      e.stopPropagation();
+      state.calOpen=!state.calOpen;
+      if(state.calOpen){
+        state.pendingWeeks=new Set(state.weeks);
+        state.calPicker=null;
+        popover.classList.add('is-open');
+        trigger.setAttribute('aria-expanded','true');
+        popover.innerHTML=renderCalendar();
+        bindCalendar();
+      } else {
+        popover.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded','false');
+      }
+    });
+  }
+  function bindCalendar(){
+    $$('[data-picker]',popover).forEach(b=>b.addEventListener('click',e=>{e.stopPropagation(); state.calPicker=state.calPicker===b.dataset.picker?null:b.dataset.picker; popover.innerHTML=renderCalendar(); bindCalendar();}));
+    $$('[data-month]',popover).forEach(b=>b.addEventListener('click',e=>{e.stopPropagation(); const m=Number(b.dataset.month); const cur=getCalMonth(); state.calMonth=new Date(cur.getFullYear(),m,1); state.calPicker=null; popover.innerHTML=renderCalendar(); bindCalendar();}));
+    $$('[data-year]',popover).forEach(b=>b.addEventListener('click',e=>{e.stopPropagation(); const y=Number(b.dataset.year); const cur=getCalMonth(); state.calMonth=new Date(y,cur.getMonth(),1); state.calPicker=null; popover.innerHTML=renderCalendar(); bindCalendar();}));
+    $$('[data-cal-nav]',popover).forEach(b=>b.addEventListener('click',e=>{e.stopPropagation(); const dir=Number(b.dataset.calNav); const cur=getCalMonth(); const next=new Date(cur.getFullYear(),cur.getMonth()+dir,1); if(next<MONTH_RANGE.min||next>MONTH_RANGE.max) return; state.calMonth=next; popover.innerHTML=renderCalendar(); bindCalendar();}));
+    $$('.cal-week.has-games',popover).forEach(row=>{
+      row.addEventListener('click',e=>{
+        e.stopPropagation();
+        const key=row.dataset.week;
+        if(state.pendingWeeks.has(key)) state.pendingWeeks.delete(key);
+        else state.pendingWeeks.add(key);
+        popover.innerHTML=renderCalendar();
+        bindCalendar();
+      });
+      row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); row.click();}});
+    });
+    $$('[data-week-all]',popover).forEach(b=>b.addEventListener('click',e=>{
+      e.stopPropagation();
+      state.pendingWeeks.clear();
+      popover.innerHTML=renderCalendar();
+      bindCalendar();
+    }));
+    $$('[data-week-cancel]',popover).forEach(b=>b.addEventListener('click',e=>{
+      e.stopPropagation();
+      state.pendingWeeks.clear();
+      state.calOpen=false;
+      popover.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded','false');
+    }));
+    $$('[data-week-ok]',popover).forEach(b=>b.addEventListener('click',e=>{
+      e.stopPropagation();
+      state.weeks=new Set(state.pendingWeeks);
+      state.pendingWeeks.clear();
+      state.calOpen=false;
+      renderCatalog();
+    }));
+  }
+  bindCalendar();
+}
+
+/* ============ ГАЙД ============ */
+function findUniversalGuide(g){if(!g.appliesTo||!g.appliesTo.length) return null; for(const k of g.appliesTo){if(!UNIVERSAL_GUIDE_APPLIES_TO.includes(k)) continue; if(UNIVERSAL_GUIDES[k]) return UNIVERSAL_GUIDES[k];} return null;}
+function statusClass(v){if(!v) return ''; const s=String(v).toLowerCase(); if(s.includes('есть')||s.includes('не требует')||s.includes('проверена')) return 'good'; if(s.includes('нужно')||s.includes('проверить')||s.includes('рабоч')) return 'warn'; if(s.includes('нет')||s.includes('старый')||s.includes('риск')) return 'bad'; return 'info';}
+
+function renderGameGuide(id){
+  const g=GAMES.find(x=>x.id===id);
+  if(!g){$('#view').innerHTML=`<div class="empty"><h2>Игра не найдена</h2><p>Возможно, ссылка устарела.</p><a class="cta" href="#/">← К каталогу</a></div>`; return;}
+  const theme=g.theme,color=THEME_COLORS[theme]||'#ff5cb1',icon=THEME_ICONS[theme]||'•';
+  const dateStr=formatDateRu(g.date);
+  const diff=DIFFS[g.complexity]||DIFFS[2];
+  const universal=g.guideType==='universal'?findUniversalGuide(g):null;
+  const badge=universal?`<span class="guide-badge universal">Универсальный гайд для тематики «${esc(universal.theme)}»</span>`:`<span class="guide-badge custom">Индивидуальный гайд тематики</span>`;
+  const descHtml=g.description&&g.description!==NO_DESCRIPTION?`<div class="desc-structured">${renderDescription(g.description)}</div>`:`<p>${esc(NO_DESCRIPTION)}</p>`;
+  const universalBlock=universal?`<section class="guide-section"><h2>${esc(universal.title)}</h2><div>${universal.body}</div></section>`:'';
+  const guideBlock=g.guide?`<section class="guide-section"><h2>Гайдлайн</h2><p><a class="guide-link" href="${esc(g.guide)}" target="_blank" rel="noopener noreferrer">📄 гайд тут</a></p><p style="font-size:.78rem;color:var(--muted);word-break:break-all;margin-top:8px">${esc(g.guide)}</p></section>`:`<section class="guide-section"><h2>Гайдлайн</h2><div class="guide-missing">${esc(NO_GUIDE)}</div></section>`;
+  const hasMeta=g.design||g.needsActualization||g.deadline||g.hasDesign;
+  const metaBlock=hasMeta?`<section class="guide-section"><h2>Статус из «Таблицы тематических игр»</h2><dl class="meta-grid"><dt>Дизайн</dt><dd>${g.design?`<span class="status ${statusClass(g.design)}">${esc(g.design)}</span>`:'—'}</dd><dt>Нужно ли проверять актуальность</dt><dd>${g.needsActualization?`<span class="status ${statusClass(g.needsActualization)}">${esc(g.needsActualization)}</span>`:'—'}</dd><dt>Дедлайн для актуализации</dt><dd>${g.deadline?(g.deadline.toLowerCase().includes('ничего не делаем')?`<span class="status ${statusClass(g.deadline)}" title="делаем">${esc(g.deadline)}</span>`:`<span class="status ${statusClass(g.deadline)}">${esc(g.deadline)}</span>`):'—'}</dd><dt>Наличие актуального дизайна</dt><dd>${g.hasDesign?`<span class="status ${statusClass(g.hasDesign)}">${esc(g.hasDesign)}</span>`:'—'}</dd></dl></section>`:'';
+  $('#view').innerHTML=`<article class="guide"><a href="#/" class="back">← К каталогу</a><header class="guide-header" style="border-color:${color}33">${badge}<h1 class="guide-title">${esc(g.title)}</h1><div class="guide-meta"><span>${icon} ${esc(theme)}</span>${dateStr?`<span>📅 ${esc(dateStr)}</span>`:''}<span class="difficulty" style="--dc:${diff.color}"><span class="stars">${'★'.repeat(g.complexity)}${'☆'.repeat(4-g.complexity)}</span><b>${diff.label}</b></span></div></header><div class="guide-body"><section class="guide-section"><h2>О игре</h2>${descHtml}</section>${universalBlock}${guideBlock}${metaBlock}<section class="guide-section"><h2>Параметры</h2><dl class="kv"><dt>Название</dt><dd>${esc(g.title)}</dd><dt>Тематика</dt><dd>${esc(theme)}</dd><dt>Сложность</dt><dd>${diff.label}</dd><dt>Секретная тема</dt><dd>${g.secret?esc(g.secret):'—'}</dd><dt>Средний балл</dt><dd>${fmt(g.average)}</dd><dt>Максимум баллов</dt><dd>${fmt(g.maxScore)}</dd><dt>Тип гайда</dt><dd>${g.guideType==='universal'?'универсальный':'custom'}</dd><dt>Применяется к</dt><dd>${g.appliesTo.length?g.appliesTo.map(a=>`<code>${esc(a)}</code>`).join(', '):'—'}</dd></dl></section></div></article>`;
+  document.title=`${g.title} — Квиз, плиз!`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ============ ГАЙД ПО ПРОГРАММЕ ============ */
+function renderProgram(){
+  $('#view').innerHTML=`<article class="guide"><a href="#/" class="back">← К каталогу</a><header class="guide-header"><span class="guide-badge">Гайд по программе</span><h1 class="guide-title">Как устроена программа</h1></header><div class="guide-body"><section class="guide-section"><h2>Поиск</h2><p>Минимум ${SEARCH_CONFIG.MIN_QUERY_LEN} символа. Debounce ${SEARCH_CONFIG.DEBOUNCE_MS} мс. Токенизация по словам, стемминг словоформ, синонимы, нечёткое совпадение по опечаткам. Если точных совпадений меньше ${SEARCH_CONFIG.SEMANTIC_THRESHOLD} — показываем близкие по смыслу с пометкой «похоже по смыслу». Пустой экран не показывается.</p></section><section class="guide-section"><h2>Годы</h2><p>Каталог сгруппирован по годам от старых к новым. Внутри года — по неделям, внутри недели — по датам. Фильтр по году — в тулбаре.</p></section><section class="guide-section"><h2>Будущие игры</h2><p>Игры, которые ещё не вышли, подсвечены бледно с замком и надписью «кто возьмёт — тот лох».</p></section><section class="guide-section"><h2>Гайды и описания</h2><p>Если гайд есть — кнопка «гайд тут» со ссылкой. Если нет — «${NO_GUIDE}». Если нет описания — «${NO_DESCRIPTION}». Если универсального гайда нет — блок не показывается.</p></section><section class="guide-section"><h2>Настройки</h2><ul><li><code>SEARCH_CONFIG.MIN_QUERY_LEN</code> — минимальная длина запроса.</li><li><code>SEARCH_CONFIG.DEBOUNCE_MS</code> — задержка debounce.</li><li><code>SEARCH_CONFIG.SEMANTIC_THRESHOLD</code> — порог для показа синонимов.</li><li><code>SYNONYMS</code> — словарь синонимов.</li><li><code>METADATA_BY_TITLE</code> — статусы из «Таблицы тематических игр».</li><li><code>RAW_DATA</code> — данные из «График игр».</li></ul></section></div></article>`;
+  document.title='Гайд по программе — Квиз, плиз!';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ============ РОУТИНГ ============ */
+function parseHash(){const raw=location.hash.slice(1)||'/'; const parts=raw.split('/').filter(Boolean); if(parts[0]==='game'&&parts[1]) return {view:'guide',id:decodeURIComponent(parts[1])}; if(parts[0]==='program') return {view:'program'}; return {view:'catalog'};}
+function updateNav(){const r=parseHash(); const a=$('#nav-catalog'),b=$('#nav-program'); if(a) a.classList.toggle('is-active',r.view==='catalog'); if(b) b.classList.toggle('is-active',r.view==='program');}
+function render(){const r=parseHash(); if(r.view==='guide') renderGameGuide(r.id); else if(r.view==='program') renderProgram(); else renderCatalog(); updateNav();}
+window.addEventListener('hashchange',render);
+render();
+
+const helpModal=$('#help-modal');
+$('#open-help').addEventListener('click',()=>{helpModal.classList.add('is-open'); helpModal.setAttribute('aria-hidden','false');});
+$('#close-help').addEventListener('click',()=>{helpModal.classList.remove('is-open'); helpModal.setAttribute('aria-hidden','true');});
+helpModal.addEventListener('click',e=>{if(e.target===helpModal){helpModal.classList.remove('is-open'); helpModal.setAttribute('aria-hidden','true');}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&helpModal.classList.contains('is-open')){helpModal.classList.remove('is-open'); helpModal.setAttribute('aria-hidden','true');}});
+</script>
+</body>
+</html>
